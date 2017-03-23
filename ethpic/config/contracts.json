@@ -1,0 +1,12 @@
+{
+  "default": {
+    "gas": 1900000,
+    "contracts": {
+    	"EthPic": {
+        "args": [
+          "100"
+        ]
+      }
+    }
+  }
+}

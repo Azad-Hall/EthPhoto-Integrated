@@ -1,0 +1,13 @@
+.teal{
+    background: #4040c1 !important;
+    height: 60px !important;
+    /*background: -webkit-linear-gradient(teal, rgba(0,128,128,0)) !important;
+    background: -o-linear-gradient(teal, rgba(0,128,128,0)) !important;
+    background: -moz-linear-gradient(teal, rgba(0,128,128,0)) !important;*/
+    /*background: linear-gradient(rgba(0,100,100,0.9), rgba(0,100,100,0.8)) !important;*/
+}
+
+nav{
+  font-family: 'Clicker Script', cursive;
+  font-size: 16px !important;
+}

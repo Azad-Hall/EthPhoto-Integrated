@@ -1,0 +1,5 @@
+ethpic/.embark/
+ethpic/dist/
+ethpic/.node*
+ethpic/chains.json
+ethpic/node_modules/

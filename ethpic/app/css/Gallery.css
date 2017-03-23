@@ -1,0 +1,99 @@
+@import "https://fonts.googleapis.com/css?family=PT+Sans:400,700";
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  font-size: 18px;
+}
+
+.tiles {
+  margin: 0 10vw;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: relative;
+  background: #f0f0f0;
+  color: black;
+}
+
+.tile {
+  margin: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  width: 18vw;
+  height: 18vw;
+}
+.tile img {
+  width: 100%;
+  -webkit-transition: -webkit-transform 500ms ease;
+  transition: -webkit-transform 500ms ease;
+  transition: transform 500ms ease;
+  transition: transform 500ms ease, -webkit-transform 500ms ease;
+}
+.tile img:hover {
+  -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+}
+
+.imgContainer{
+	display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: relative;
+  background: transparent;
+	padding-bottom:5vh;
+}
+
+.userData{
+	width: 100%;
+	text-align: center;
+	padding-top: 5%;
+}
+
+.profilePicture{
+	width: 15vw;
+	margin: 0 auto;
+}
+.profilePicture img{
+	width: 12vw;
+	height: 12vw;
+	border-radius: 50%;
+}
+
+.userData hr{
+	margin: 2.5% 15% 5%;
+}
+.userData h1{
+  font-size: 2.5rem;
+}
+
+.userData a{
+  font-size: 2rem;
+  position: relative;
+  float: right;
+  margin-right: 8%;
+}
+
+#infowindow img{
+  max-width: 500px;
+  max-height: 500px;
+}
