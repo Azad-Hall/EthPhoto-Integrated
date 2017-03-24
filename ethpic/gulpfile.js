@@ -16,3 +16,9 @@ gulp.task('bundle', function() {
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('dist'));
 });
+
+gulp.task('watch', function() {
+    gulp.watch('app/static/js/*.js', ['bundle'])
+});
+
+gulp.task('default', ['bundle', 'watch']);
