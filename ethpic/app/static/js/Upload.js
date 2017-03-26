@@ -11,15 +11,18 @@ var Upload = React.createClass({
   render(){
     return(
       <div>
-        {this.props.loggedIn ? <UploadButton showUploader={this.state.showUploader} toggleShowUpload={this.toggleShowUpload}/> : <div></div>}
+        {this.props.loggedIn ? <UploadButton showUploader={this.state.showUploader} 
+                                              toggleShowUpload={this.toggleShowUpload} 
+                                              user={this.props.user} 
+                                              curLat={this.props.curLat} 
+                                              curLng={this.props.curLng}
+                                               /> : <div></div>}
       </div>
     )
   },
 
   toggleShowUpload(){
-    console.log(this.state.showUploader);
     this.setState({showUploader: this.state.showUploader ? false : true})
-    console.log(this.state.showUploader);
   }
 })
 

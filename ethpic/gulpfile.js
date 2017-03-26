@@ -12,7 +12,7 @@ gulp.task('bundle', function() {
     })
     .transform(babelify, {presets: ['es2015', 'react', 'stage-2']})
     .bundle()
-    .on("error", function (err) { console.log("Error : " + err); })
+    .on("error", function (err) { console.log("Error : " + err); this.emit('end'); })
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('dist'));
 });

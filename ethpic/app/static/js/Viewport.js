@@ -107,8 +107,13 @@ export default class Viewport extends Component {
         </Surface>
       </div>
       <input type='file' style={{display:'none'}} id='inputImage' onChange={this.newImage} />
-      <button onClick={this.getImage} >Get Image</button>
     </div>;
+  }
+
+  getImage = e => {
+    var canvas = document.getElementsByTagName("canvas")[0];
+    var temp = new Image;
+    temp.src = canvas.toDataURL('image/jpg');
   }
 
   newImage = e => {
@@ -120,6 +125,7 @@ export default class Viewport extends Component {
      e.preventDefault();
      e.stopPropagation();
      const file = e.target.files[0];
+     file.crossOrigin = "Anonymous";
      var x = {
          uri: URL.createObjectURL(file),
          type: file.type,

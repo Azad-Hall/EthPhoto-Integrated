@@ -6,8 +6,26 @@ import {
   Marker,
 } from "react-google-maps";
 
-// import '../css/index.css';
+// import './index.css';
 import mapStyle from '../mapStyle.json';
+
+import SearchBox from "react-google-maps";
+
+const INPUT_STYLE = {
+  boxSizing: `border-box`,
+  MozBoxSizing: `border-box`,
+  border: `1px solid transparent`,
+  width: `240px`,
+  height: `32px`,
+  marginTop: `27px`,
+  padding: `0 12px`,
+  borderRadius: `1px`,
+  boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
+  fontSize: `14px`,
+  outline: `none`,
+  textOverflow: `ellipses`,
+  zIndex: '100'
+};
 
 const SimpleMap = props => (
   <section style={{ height: `100%` }}>
@@ -34,6 +52,7 @@ const SimpleMap = props => (
           popup={props.popup}
           defaultOptions={{ styles: mapStyle }}
         >
+
           {props.markers.map((marker, index) => (
             <Marker
               {...marker}

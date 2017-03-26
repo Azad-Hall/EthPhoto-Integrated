@@ -42,22 +42,80 @@ export default class Map extends Component {
   handleMapClick = this.handleMapClick.bind(this);
   handleMarkerClick = this.handleMarkerClick.bind(this);
   handleMarkerClose = this.handleMarkerClose.bind(this);
-  // this.handleChange = this.handleChange.bind(this);
-  // this.updatingContent = this.updatingContent.bind(this);
   handleMarkerRightclick = this.handleMarkerRightclick.bind(this);
   closeImageView = this.closeImageView.bind(this);
 
   componentDidMount() {
 
+    var types = {1: "Landscape", 2: "People", 3: "Architecture"};
+
+    console.log("1", this.state);
+    var that = this;
+
+    var h = ethDB.getNumberOfUsers().then(function(users){
+      console.log("USERS", users);
+      console.log("2", that.state);
+
+      for (var i = 1; i <= users; i++) {
+        var curr = i;
+        ethDB.getNumberOfPhotosByUID(i).then(function(photos){
+          console.log("PHOTOS", photos);
+          console.log("3", that.state);
+
+          for (var j = 0; j < 1; j++) {
+
+            console.log(curr, j);
+            ethDB.getPhotoByUID(curr, j).then(function(data){
+              
+              console.log(data);
+              console.log(data[2], data[3]);
+              var obj = {};
+              obj.lng = () => {return parseInt(data[2])};
+              obj.lat = () => {return parseInt(data[3])};
+
+              console.log(obj);
+              console.log("Till here 1");
+              that.props.setCurLatLng(obj);
+              that.setState({
+                markers: that.state.markers.map(marker => {
+                  marker.showInfo = false
+                  return marker;
+                }),
+              });
+              let { markers } = that.state;
+              markers = update(markers, {
+                $push: [
+                  {
+                    position: {
+                      lng: parseInt(data[2]),
+                      lat: parseInt(data[3])
+                    },
+                    defaultAnimation: 2,
+                    showInfo: false,
+                    imageUrl: EmbarkJS.Storage.getUrl(data[1]),
+                    content: true,
+                    title:'Image Title',
+                    tags:[types[parseInt(data[4])]],
+                    key: data[0], // Add a key property for: http://fb.me/react-warning-keys
+                  },
+                ],
+              });
+              that.setState({ markers });
+              console.log(markers);
+            });
+          }
+        }); 
+      }
+    });
   }
-
-
 
   /*
    * This is called when you click on the map.
    * Go and try click now.
    */
   handleMapClick(event) {
+    console.log(event.latLng);
+    this.props.setCurLatLng(event.latLng);
     this.setState({
       markers: this.state.markers.map(marker => {
         marker.showInfo = false
@@ -134,6 +192,31 @@ export default class Map extends Component {
     imageView.imageView.visible = false;
     this.setState({ imageView });
   }
+
+  handleSearchBoxMounted = this.handleSearchBoxMounted.bind(this);
+  handlePlacesChanged = this.handlePlacesChanged.bind(this);
+
+  handleSearchBoxMounted(searchBox) {
+   this._searchBox = searchBox;
+ }
+
+ handlePlacesChanged() {
+   const places = this._searchBox.getPlaces();
+
+   // Add a marker for each place returned from search bar
+   const markers = places.map(place => ({
+     position: place.geometry.location,
+   }));
+
+   // Set markers; set map center to first search result
+   const mapCenter = markers.length > 0 ? markers[0].position : this.state.center;
+
+   this.setState({
+     center: mapCenter,
+     markers,
+   });
+ }
+ 
   render() {
     return (
       <div>
@@ -144,6 +227,9 @@ export default class Map extends Component {
         onMarkerClose={this.handleMarkerClose}
         onMarkerRightclick={this.handleMarkerRightclick}
         imageView = {this.imageView}
+        onSearchBoxMounted = {this.handleSearchBoxMounted}
+        bounds = {this.state.bounds}
+        onPlacesChanged={this.handlePlacesChanged}
       />
 
       <ImageView data={this.state.imageView} closeImageView={this.closeImageView}/>

@@ -11,20 +11,25 @@ var App = React.createClass ({
       loggedIn: true,
       requestLogin: false,
       dashOpen: false,
-      userName: 'a'
+      userName: 'Light',
+      curLat : 22,
+      curLng : 87
     }
   },
-
   render() {
     return (
       <div className="App">
         <Navbar loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
         <Login requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin}/>
-        <Map/>
+        <Map setCurLatLng={this.setCurLatLng}/>
         <Gallery open={this.state.dashOpen} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
-        <Upload loggedIn={this.state.loggedIn}/>
+        <Upload loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
       </div>
     );
+  },
+
+  setCurLatLng(point){
+    this.setState({curLng: point.lng(), curLat: point.lat()});
   },
 
   showLogin(){

@@ -8,6 +8,7 @@ import Button from "./Button";
 import ExportPanel from "./ExportPanel";
 import ExportedLink from "./ExportedLink";
 import uploadImage from "./uploadImage";
+import $ from "./jquery";
 
 const percentagePrint = v => (v * 100).toFixed(0) + "%";
 const radiantPrint = r => (180 * r / Math.PI).toFixed(0) + "°";
@@ -60,6 +61,46 @@ export default class Uploader extends Component {
     .then(uploadImage)
     .then(({ data: { link: uploaded } }) => this.setState({ uploaded }));
 
+  submitImage(e){
+    e.preventDefault();
+    var lat=this.refs.lat.value.trim();
+    var lng=this.refs.lng.value.trim();
+    var img=this.refs.image.value;
+    var type=this.refs.imgType.value;
+
+    var input_file = $("#image_input")
+
+    if(!lat || !lng || !img || !type){
+      alert("Please enter all the info");
+      return;
+    }
+    console.clear();
+    console.log(img);
+    console.log(this.refs.image);
+    console.log(lat + "  " + lng);             //here is your latitude longitude and user data
+    console.log(this.props.user);
+    console.log(type);
+    this.refs.lat.value = "";
+    this.refs.lng.value = "";
+
+    var types = {"Landscape": 1, "People": 2, "Architecture": 3};
+    console.log(types[type]);
+
+    EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
+    EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
+      console.log("topic_value", types[type]);
+      console.log("input_file_hash", input_file_hash);
+      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: 1050000}).then(function(result){
+        console.log("UPLOADED RESULT", result);
+      });
+    });
+    
+  }
+
+  latChange(){
+    console.log('latitude Changing')
+  }
+
   render () {
     const { content, uploaded, ...effects } = this.state;
 
@@ -71,20 +112,23 @@ export default class Uploader extends Component {
           onLoadNewContent={this.onLoadNewContent}
           content={content}
         />
-        <EffectsPanel>
-          {fields.map(({ id, ...props}) =>
-            <Field key={id}
-              {...props}
-              value={effects[id]}
-              onChange={value => this.setState({ [id]: value })}
-              onReset={() => this.setState({ [id]: initialInputs[id] })}
-            />
-          ) }
-          <ExportPanel>
-            {uploaded ? <ExportedLink>{uploaded}</ExportedLink> : null}
-          </ExportPanel>
-        </EffectsPanel>
-          <Button onPress={this.onExport}>UPLOAD TO IMGUR</Button>
+        <form style={{position:'absolute', right: '5vw', top: '50vh', transform:'translate(0 , -50%)', zIndex:'100', display:'block', width:'30vw'}} onSubmit={this.submitImage.bind(this)}>
+          <div className="input-field"><input type="file" id='image_input' className="input" ref="image" onChange={this.imageChange} placeholder="select Image"></input><br/><br/></div>
+          <label for="lat" style={{color:'black'}}>Latitude</label>
+          <div className="input-field"><input type='number' step="0.00001" className="input" ref="lat" onChange={this.latChange} defaultValue={this.props.curLat ? this.props.curLat : 0} placeholder='Lat'></input></div>
+          <label for="lng" style={{color:'black'}}>Longitude</label>
+          <div className="input-field"><input type='number' step="0.00001" className="input" ref="lng" onChange={this.lngChange} defaultValue={this.props.curLng ? this.props.curLng : 0} placeholder='Lng'></input></div>
+          <div className="input-field">
+            <select ref="imgType" style={{display:'block'}}>
+              <option value="" disabled selected>Choose your option</option>
+              <option value="Landscape">Landscape</option>
+              <option value="People">People</option>
+              <option value="Architecture">Architecture</option>
+            </select>
+          </div>
+          <button type="submit">Upload</button>
+        </form>
+
       </AppContainer>
     );
   }

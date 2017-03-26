@@ -8,7 +8,7 @@ const styles = {
   button: {
     position: 'absolute',
     right: '15vw',
-    top: '75vh'
+    top: '25vh'
   }
 };
 
