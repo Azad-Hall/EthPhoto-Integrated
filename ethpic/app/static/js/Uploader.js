@@ -95,11 +95,11 @@ export default class Uploader extends Component {
     console.log(types[type]);
     var that = this;
 
-    EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
+    EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
-      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: 1050000}).then(function(result){
+      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: '0x100590'}, {gasPrice: '0x100590'}).then(function(result){
         console.log("UPLOADED RESULT", result);
 
         var obj = {};
@@ -137,7 +137,7 @@ export default class Uploader extends Component {
         console.log(markers);
       });
     });
-    
+
   }
 
   latChange(){

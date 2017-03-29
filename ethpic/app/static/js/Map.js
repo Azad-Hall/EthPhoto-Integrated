@@ -59,7 +59,7 @@ export default class Map extends Component {
 
             console.log(curr, j);
             ethDB.getPhotoByUID(curr, j).then(function(data){
-              
+
               console.log(data);
               console.log(data[2], data[3]);
               var obj = {};
@@ -99,7 +99,7 @@ export default class Map extends Component {
               console.log(markers);
             });
           }
-        }); 
+        });
       }
     });
   }
@@ -231,7 +231,7 @@ export default class Map extends Component {
      markers,
    });
  }
- 
+
   render() {
     return (
       <div>
