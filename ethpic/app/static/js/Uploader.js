@@ -11,6 +11,8 @@ import uploadImage from "./uploadImage";
 import $ from "./jquery";
 import update from "react-addons-update";
 
+const server_side = "http://139.59.72.137:8080/ipfs/";
+
 const percentagePrint = v => (v * 100).toFixed(0) + "%";
 const radiantPrint = r => (180 * r / Math.PI).toFixed(0) + "°";
 
@@ -123,7 +125,7 @@ export default class Uploader extends Component {
               },
               defaultAnimation: 2,
               showInfo: false,
-              imageUrl: EmbarkJS.Storage.getUrl(input_file_hash),
+              imageUrl: server_side + input_file_hash,
               content: true,
               title:'Image Title',
               tags:[type],
