@@ -3,6 +3,8 @@ import {
   Component,
 } from "react";
 
+const server_side = "http://139.59.72.137:8080/ipfs/";
+
 import CSSTransitions from 'react-addons-css-transition-group';
 
 import update from "react-addons-update";
@@ -17,19 +19,7 @@ const styles={
 
 export default class Map extends Component {
   state = {
-    markers: [{
-      position: {
-        lat: 22.314544,
-        lng: 87.309068,
-      },
-      key: `IIT KGP`,
-      content: false,
-      showInfo: false,
-      defaultAnimation: 2,
-      imageUrl:'https://unsplash.it/800/800?image=234',
-      title:'Image Title',
-      tags:['tag1', 'tag2' , 'tag3' ],
-    }],
+    markers: [],
     imageView:{
       visible: false,
       url:'https://unsplash.it/800/800?image=234',
@@ -46,6 +36,11 @@ export default class Map extends Component {
   closeImageView = this.closeImageView.bind(this);
 
   componentDidMount() {
+    console.clear();
+    console.log(this.state.markers);
+    this.setState({markers: this.props.markerData});
+    console.log(this.state.markers);
+    console.log(this.props.markerData);
 
     var types = {1: "Landscape", 2: "People", 3: "Architecture"};
 
@@ -56,17 +51,19 @@ export default class Map extends Component {
       console.log("USERS", users);
       console.log("2", that.state);
 
-      for (var i = 1; i <= users; i++) {
-        var curr = i;
-        ethDB.getNumberOfPhotosByUID(i).then(function(photos){
+      var arr = [...Array(users.c[0]).keys()];
+      console.log(arr);
+      arr.forEach(function(listitem, curr){
+
+        ethDB.getNumberOfPhotosByUID(curr).then(function(photos){
           console.log("PHOTOS", photos);
           console.log("3", that.state);
 
-          for (var j = 0; j < 1; j++) {
+          for (var j = 0; j < photos.c[0]; j++) {
 
             console.log(curr, j);
             ethDB.getPhotoByUID(curr, j).then(function(data){
-              
+
               console.log(data);
               console.log(data[2], data[3]);
               var obj = {};
@@ -92,7 +89,7 @@ export default class Map extends Component {
                     },
                     defaultAnimation: 2,
                     showInfo: false,
-                    imageUrl: EmbarkJS.Storage.getUrl(data[1]),
+                    imageUrl: server_side + data[1],
                     content: true,
                     title:'Image Title',
                     tags:[types[parseInt(data[4])]],
@@ -101,12 +98,19 @@ export default class Map extends Component {
                 ],
               });
               that.setState({ markers });
+              that.props.updateMarkers(that.state.markers);
+              that.setState({markers: that.props.markerData});
               console.log(markers);
             });
           }
-        }); 
-      }
+        });
+      });
     });
+  }
+
+
+  componentWillReceiveProps() {
+    this.setState({markers: this.props.markerData});
   }
 
   /*
@@ -138,9 +142,16 @@ export default class Map extends Component {
       ],
     });
     this.setState({ markers });
+    this.props.updateMarkers(this.state.markers);
+    this.setState({markers: this.props.markerData});
     console.log(markers);
   }
 
+  updateMarkers(){
+   console.log('11111');
+   this.props.updateMarkers(this.state.markers);
+   this.setState({markers: this.props.markerData});
+  }
   // handleChange(event){
   //   this.setState({formValue:event.target.value});
   // }
@@ -153,10 +164,14 @@ export default class Map extends Component {
           tempState.imageView.url = marker.imageUrl;
           tempState.imageView.title = marker.title;
           tempState.imageView.tags = marker.tags;
+          console.log('-----------------------');
+          console.log(marker.tags);
           tempState.imageView.visible = true;
           this.setState({tempState});
         }
     })
+    this.props.updateMarkers(this.state.markers);
+    this.setState({markers: this.props.markerData});
   }
 
   handleMarkerClose(targetMarker){
@@ -169,6 +184,8 @@ export default class Map extends Component {
         return marker;
       }),
     })
+    this.props.updateMarkers(this.state.markers);
+    this.setState({markers: this.props.markerData});
   }
 
 
@@ -185,6 +202,8 @@ export default class Map extends Component {
       ],
     });
     this.setState({ markers });
+    this.props.updateMarkers(this.state.markers);
+    this.setState({markers: this.props.markerData});
   }
 
   closeImageView(){
@@ -216,7 +235,7 @@ export default class Map extends Component {
      markers,
    });
  }
- 
+
   render() {
     return (
       <div>

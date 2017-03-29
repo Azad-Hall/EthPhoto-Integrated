@@ -2,10 +2,11 @@
   "default": {
     "gas": 1900000,
     "contracts": {
-    	"EthPic": {
+    	"ethDB": {
         "args": [
           "100"
-        ]
+        ],
+        "address": "0xfcea15733dd2a1c623fc6a375ce2fbc8657f6860"
       }
     }
   }
