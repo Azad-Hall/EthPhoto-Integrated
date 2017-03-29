@@ -11,9 +11,23 @@ var App = React.createClass ({
       loggedIn: true,
       requestLogin: false,
       dashOpen: false,
-      userName: 'Light',
+      uploaderOpen: false,
+      userName: 'User',
       curLat : 22,
-      curLng : 87
+      curLng : 87,
+      markers: [{
+        position: {
+          lat: 22.314544,
+          lng: 87.309068,
+        },
+        key: `IIT KGP`,
+        content: false,
+        showInfo: false,
+        defaultAnimation: 2,
+        imageUrl:'https://unsplash.it/800/800?image=234',
+        title:'Image Title',
+        tags:['tag1', 'tag2' , 'tag3' ],
+      }]
     }
   },
   render() {
@@ -21,11 +35,21 @@ var App = React.createClass ({
       <div className="App">
         <Navbar loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
         <Login requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin}/>
-        <Map setCurLatLng={this.setCurLatLng}/>
+        <Map markerData={this.state.markers} setCurLatLng={this.setCurLatLng} updateMarkers={this.updateMarkers}/>
         <Gallery open={this.state.dashOpen} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
-        <Upload loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
+        <Upload markerData={this.state.markers} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
       </div>
     );
+  },
+
+  updateMarkers(marker){
+    this.setState({markers:marker});
+    console.log('marker data from app:');
+    console.log(this.state.markers);
+  },
+
+  toggleShowUpload(){
+    this.setState({uploaderOpen: this.state.uploaderOpen ? false : true, dashOpen: false})
   },
 
   setCurLatLng(point){
@@ -52,7 +76,7 @@ var App = React.createClass ({
   },
 
   showDash(){
-    this.setState({dashOpen:true});
+    this.setState({dashOpen:true, uploaderOpen:false});
   },
 
   hideDash(){

@@ -38,7 +38,10 @@ var UploadButton = React.createClass({
           transitionAppearTimeout = {300}>
         {this.props.showUploader ? <div style={ContainerStyle} key={'uploader'} ><Uploader  user={this.props.user}
                                                                                             curLat={this.props.curLat} 
-                                                                                            curLng={this.props.curLng} /></div> : <div></div>}
+                                                                                            curLng={this.props.curLng}
+                                                                                            markerData={this.props.markerData} 
+                                                                                            updateMarkers={this.props.updateMarkers}
+                                                                                            setCurLatLng={this.props.setCurLatLng} /></div> : <div></div>}
         </CSSTransitions>
       </div>
     )

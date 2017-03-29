@@ -44,9 +44,9 @@ const SimpleMap = props => (
       }
       googleMapElement={
         <GoogleMap
-          ref={(map) => console.log(map)}
-          defaultZoom={2}
-          defaultCenter={{ lat: 0, lng: 0 }}
+          ref={(map) => console.log('')}
+          defaultZoom={5}
+          defaultCenter={{ lat: 20.5937, lng: 78.9629 }}
           onClick={props.onMapClick}
           onShowImage={props.onShowImage}
           popup={props.popup}
@@ -62,7 +62,7 @@ const SimpleMap = props => (
               {marker.showInfo && (
                 <InfoWindow onCloseClick={() => this.props.onShowImage}>
                   {
-                    marker.imageUrl ? <div id="infowindow"><img src={marker.imageUrl} onClick={() => {console.log(marker);}}/></div>:<div></div>
+                    marker.imageUrl ? <div id="infowindow"><img src={marker.imageUrl} onClick={() => {}}/></div>:<div></div>
                   }
                 </InfoWindow>
               )}

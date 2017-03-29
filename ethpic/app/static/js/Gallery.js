@@ -1,5 +1,11 @@
 import React from 'react';
-// import '../css/Gallery.css';
+// import './Gallery.css';
+import CSSTransitions from 'react-addons-css-transition-group';
+
+
+const styles={
+  transition: 'all 300ms ease'
+}
 
 var Gallery = React.createClass  ({
   getInitialState(){
@@ -47,13 +53,20 @@ var Gallery = React.createClass  ({
 	render() {
 		return (
       <div>
-      { this.props.open ?
-        <div className="overlay" onClick={this.props.hideDash}>
-  			   <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username}/>
-        </div>
-        :<div></div>}
-      </div>
+	      <CSSTransitions
+	          transitionName = 'slide'
+	          transitionEnterTimeout = {300}
+	          transitionLeaveTimeout = {300}
+	          transitionAppear = {true}
+	          transitionAppearTimeout = {300}>
+	      { this.props.open ?
+	        <div className="overlay" onClick={this.props.hideDash} key='gallery'>
+	  			   <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username}/>
+	        </div>
+	        :<div></div>}
 
+	      </CSSTransitions>
+      </div>
 
 		);
 	}
@@ -76,7 +89,6 @@ var Tiles = React.createClass({
 	},
 
   stopPropagation(e){
-    console.log('test');
     e.stopPropagation();
   }
 })
@@ -159,9 +171,9 @@ class Tile extends React.Component {
 				top: '50%',
 				left: '50%',
 				margin: '0',
-        transform:'translate( -50% , -50% )',
+        		transform:'translate( -50% , -50% )',
 				boxShadow: '0 0 40px 5px rgba(0, 0, 0, 0.3)',
-        zIndex : 2
+        		zIndex : 2
 			};
 		} else {
 			tileStyle = {
@@ -180,6 +192,7 @@ class Tile extends React.Component {
 					alt={this.props.data.name}
 					style={tileStyle}
 				/>
+				<a href="#" onClick={(e) => {e.preventDefault(); console.log('fuck yeah');}} style={{position:'absolute', marginLeft:'-3vw' , marginTop:'1vw' , color:'white'}}><i className="material-icons">delete</i></a>
 			</div>
 		);
 	}

@@ -9,6 +9,7 @@ import ExportPanel from "./ExportPanel";
 import ExportedLink from "./ExportedLink";
 import uploadImage from "./uploadImage";
 import $ from "./jquery";
+import update from "react-addons-update";
 
 const percentagePrint = v => (v * 100).toFixed(0) + "%";
 const radiantPrint = r => (180 * r / Math.PI).toFixed(0) + "°";
@@ -36,6 +37,9 @@ const fields = [
 ];
 
 export default class Uploader extends Component {
+  state = {
+      markers: []
+    };
 
   constructor (props) {
     super(props);
@@ -52,6 +56,10 @@ export default class Uploader extends Component {
     };
   }
 
+  componentDidMount() {
+    this.setState({markers: this.props.markerData});
+  }
+
   onLoadNewContent = content => {
     this.setState({ content });
   };
@@ -63,8 +71,8 @@ export default class Uploader extends Component {
 
   submitImage(e){
     e.preventDefault();
-    var lat=this.refs.lat.value.trim();
-    var lng=this.refs.lng.value.trim();
+    var lat=parseInt(this.refs.lat.value.trim());
+    var lng=parseInt(this.refs.lng.value.trim());
     var img=this.refs.image.value;
     var type=this.refs.imgType.value;
 
@@ -85,6 +93,7 @@ export default class Uploader extends Component {
 
     var types = {"Landscape": 1, "People": 2, "Architecture": 3};
     console.log(types[type]);
+    var that = this;
 
     EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
@@ -92,6 +101,40 @@ export default class Uploader extends Component {
       console.log("input_file_hash", input_file_hash);
       ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: 1050000}).then(function(result){
         console.log("UPLOADED RESULT", result);
+
+        var obj = {};
+        obj.lng = () => {return lng};
+        obj.lat = () => {return lat};
+
+        that.props.setCurLatLng(obj);
+        that.setState({
+          markers: that.state.markers.map(marker => {
+            marker.showInfo = false
+            return marker;
+          }),
+        });
+        let { markers } = that.state;
+        markers = update(markers, {
+          $push: [
+            {
+              position: {
+                lng: lng,
+                lat: lat
+              },
+              defaultAnimation: 2,
+              showInfo: false,
+              imageUrl: EmbarkJS.Storage.getUrl(input_file_hash),
+              content: true,
+              title:'Image Title',
+              tags:[type],
+              key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
+            },
+          ],
+        });
+        that.setState({ markers });
+        that.props.updateMarkers(that.state.markers);
+        that.setState({markers: that.props.markerData});
+        console.log(markers);
       });
     });
     
