@@ -124,56 +124,55 @@ export default class Uploader extends Component {
     var that = this;
     console.log(input_file);
 
-    EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
+    EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
-      var args = [];
-      args.push({from: that.props.addresses[0], to: ethDB.address});
+      
+    var raw = that.props.signTransactions('postPhoto', [input_file_hash, lng, lat, types[type]])
+    console.log(raw);
 
-      console.log('args', args);
-      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: '0x100590', gasPrice: '0x100590', from: '0x'+that.props.addresses[0], to: ethDB.address}).then(function(result){
-        console.log("UPLOADED RESULT", result);
+    
+    console.log("UPLOADED RESULT", raw);
 
-        var obj = {};
-        obj.lng = () => {return lng};
-        obj.lat = () => {return lat};
+    var obj = {};
+    obj.lng = () => {return lng};
+    obj.lat = () => {return lat};
 
-        that.props.setCurLatLng(obj);
-        that.setState({
-          markers: that.state.markers.map(marker => {
-            marker.showInfo = false
-            return marker;
-          }),
-        });
-        let { markers } = that.state;
-        markers = update(markers, {
-          $push: [
-            {
-              position: {
-                lng: lng/10000,
-                lat: lat/10000
-              },
-              defaultAnimation: 2,
-              showInfo: false,
-              imageUrl: server_side + input_file_hash,
-              content: true,
-              title:'',
-              userid: 0,
-              imageid: 0,
-              tags:[type],
-              key: Date.now(),
-              upvotes:'0' // Add a key property for: http://fb.me/react-warning-keys
-            },
-          ],
-        });
-        that.setState({ markers });
-        that.props.updateMarkers(that.state.markers);
-        that.setState({markers: that.props.markerData});
-        console.log(markers);
-        that.props.showUserPics();
-      });
+    that.props.setCurLatLng(obj);
+    that.setState({
+      markers: that.state.markers.map(marker => {
+        marker.showInfo = false
+        return marker;
+      }),
     });
+    let { markers } = that.state;
+    markers = update(markers, {
+      $push: [
+        {
+          position: {
+            lng: lng/10000,
+            lat: lat/10000
+          },
+          defaultAnimation: 2,
+          showInfo: false,
+          imageUrl: server_side + input_file_hash,
+          content: true,
+          title:'',
+          userid: 0,
+          imageid: 0,
+          tags:[type],
+          key: Date.now(),
+          upvotes:'0' // Add a key property for: http://fb.me/react-warning-keys
+        },
+      ],
+    });
+    that.setState({ markers });
+    that.props.updateMarkers(that.state.markers);
+    that.setState({markers: that.props.markerData});
+    console.log(markers);
+    that.props.showUserPics();
+  });
 
   }
 
