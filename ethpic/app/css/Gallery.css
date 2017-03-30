@@ -66,7 +66,6 @@ body {
 .userData{
 	width: 100%;
 	text-align: center;
-	padding-top: 5%;
 }
 
 .profilePicture{
@@ -88,9 +87,10 @@ body {
 
 .userData a{
   font-size: 2rem;
-  position: relative;
-  float: right;
-  margin-right: 8%;
+  position: absolute;
+  right:0;
+  margin: 2% 5%;
+  transform: scale(1.2);
 }
 
 #infowindow img{

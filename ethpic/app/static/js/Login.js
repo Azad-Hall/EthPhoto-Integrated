@@ -1,18 +1,24 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-// import '../css/Login.css'
+// import './Login.css'
 
 // Main app
 var Login = React.createClass({
 
-  handleSubmit(user,pswd) {
-    this.doLogin(user , pswd);                                   //remove this
+  handleSubmit(user,pswd,login) {
+    console.log('user: ', user , 'pswd: ', pswd);
+    if(login)
+      this.doLogin(user , pswd);                                   //remove this
+    else
+      this.doSignUp(pswd);
+
     this.setState({
       isVisible: false
     }, function() {
     });
     return false;
   },
+  
   handleRemount(e) {
     this.setState({
       isVisible: true
@@ -20,12 +26,19 @@ var Login = React.createClass({
     });
     e.preventDefault();
   },
+  
   cancelLogin(){
     this.props.cancelLogin();
   },
+  
   doLogin(user,pswd){
     this.props.doLogin(user,pswd);
   },
+  
+  doSignUp(pswd){
+    this.props.doSignUp(pswd);
+  },
+
   render() {
 
     // const for React CSS transition declaration
@@ -42,7 +55,23 @@ var Modal = React.createClass({
   getInitialState(){
     return{
       username:'',
-      password:''
+      password:'',
+      choose:0,
+      signup:0,
+      signin:0
+    }
+  },
+
+  inClick(e){
+    if(this.state.choose == 0){
+      e.preventDefault();
+      this.setState({choose : 1, signin: 1})
+    }
+  },
+  upClick(e){
+    if(this.state.choose == 0){
+      e.preventDefault();
+      this.setState({signup : 1, choose:1})
     }
   },
 
@@ -51,22 +80,37 @@ var Modal = React.createClass({
               <div className='Modal' onClick={this.stopPropagation}>
                 <Logo />
                 <form onSubmit={this.onSubmit}>
-                  <div className='Input'>
-                    <input type='text' name='username' ref='username' placeholder='Username' required autocomplete='false' onChange={this.usernameUpdate}/>
-                  </div>
-                  <div className='Input'>
-                    <input type='password' name='password' ref='password' placeholder='Password' required autocomplete='false' onChange={this.passwordUpdate}/>
-                  </div>
-                  <button> SIGN IN</button>
+                  { this.state.signin ? 
+                    <div className='Input'>
+                      <input type='text' name='username' ref='username' placeholder='Words' required autocomplete='false' onChange={this.usernameUpdate}/>
+                    </div> : <div></div>
+                  }
+                  {this.state.choose ?
+                    <div className='Input'>
+                     <input type='password' name='password' ref='password' placeholder='Password' required autocomplete='false' onChange={this.passwordUpdate}/>
+                    </div>:<div></div>
+                  }
+                  {this.state.choose == 0 ? <button onClick={this.upClick}> SIGN UP </button> : <div></div>}
+                  <button onClick={this.inClick}> SIGN {this.state.signup ? 'UP' : 'IN'} </button>
+
+                  {this.state.signup ?
+                    <span style={{color:'white',fontSize:'0.9rem', margin:'0 10%', display:'block', textAlign:'center'}}>Take note of the words that will be generated when you submit 
+                    your password. You will need them to be able to sign in to your account in the future.</span>
+                    :<span></span>
+                  }
                 </form>
               </div>
            </div>
   },
   onSubmit(e){
       e.preventDefault();
-      var user = this.refs.username.value.trim();
-      var pswd = this.refs.password.value.trim();
-      this.props.onSubmit(user , pswd)
+      let signin = this.state.signin;
+      let user;
+      if(signin)
+        user = this.refs.username.value.trim();
+      let pswd;
+        pswd = this.refs.password.value.trim();
+      this.props.onSubmit(user , pswd , signin);
   },
   stopPropagation(e){
       e.stopPropagation();
@@ -83,7 +127,7 @@ var Modal = React.createClass({
 class Input extends React.Component {
   render() {
     return <div className='Input'>
-              <input type={ this.props.type } name={ this.props.name } ref={this.props.name} placeholder={ this.props.placeholder } required autocomplete='false'/>
+              <input type={ this.props.type } name={ this.props.name } ref={this.props.name} placeholder={ this.props.placeholder } autocomplete='false'/>
            </div>
   }
 

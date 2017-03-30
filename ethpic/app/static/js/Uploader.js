@@ -10,6 +10,7 @@ import ExportedLink from "./ExportedLink";
 import uploadImage from "./uploadImage";
 import $ from "./jquery";
 import update from "react-addons-update";
+import Dropzone from 'react-dropzone';
 
 const percentagePrint = v => (v * 100).toFixed(0) + "%";
 const radiantPrint = r => (180 * r / Math.PI).toFixed(0) + "°";
@@ -25,21 +26,35 @@ const initialInputs = {
   flyeye: 0
 };
 
-const fields = [
-  { id: "blur", name: "Blur", min: 0, max: 6, step: 0.1, prettyPrint: blur => blur.toFixed(1) },
-  { id: "contrast", name: "Contrast", min: 0, max: 4, step: 0.1, prettyPrint: percentagePrint },
-  { id: "brightness", name: "Brightness", min: 0, max: 4, step: 0.1, prettyPrint: percentagePrint },
-  { id: "saturation", name: "Saturation", min: 0, max: 10, step: 0.1, prettyPrint: percentagePrint },
-  { id: "hue", name: "HueRotate", min: 0, max: 2 * Math.PI, step: 0.1, prettyPrint: radiantPrint },
-  { id: "negative", name: "Negative", min: 0, max: 1, step: 0.05, prettyPrint: percentagePrint },
-  { id: "sepia", name: "Sepia", min: 0, max: 1, step: 0.05, prettyPrint: percentagePrint },
-  { id: "flyeye", name: "FlyEye", min: 0, max: 1, step: 0.05, prettyPrint: percentagePrint }
-];
+// const fields = [
+//   { id: "blur", name: "Blur", min: 0, max: 6, step: 0.1, prettyPrint: blur => blur.toFixed(1) },
+//   { id: "contrast", name: "Contrast", min: 0, max: 4, step: 0.1, prettyPrint: percentagePrint },
+//   { id: "brightness", name: "Brightness", min: 0, max: 4, step: 0.1, prettyPrint: percentagePrint },
+//   { id: "saturation", name: "Saturation", min: 0, max: 10, step: 0.1, prettyPrint: percentagePrint },
+//   { id: "hue", name: "HueRotate", min: 0, max: 2 * Math.PI, step: 0.1, prettyPrint: radiantPrint },
+//   { id: "negative", name: "Negative", min: 0, max: 1, step: 0.05, prettyPrint: percentagePrint },
+//   { id: "sepia", name: "Sepia", min: 0, max: 1, step: 0.05, prettyPrint: percentagePrint },
+//   { id: "flyeye", name: "FlyEye", min: 0, max: 1, step: 0.05, prettyPrint: percentagePrint }
+// ];
+
+var image;
 
 export default class Uploader extends Component {
   state = {
       markers: []
     };
+
+    onDrop(acceptedFiles, rejectedFiles) {
+      console.log('Accepted files: ', acceptedFiles);
+      console.log('Rejected files: ', rejectedFiles);
+      console.log(acceptedFiles[0].preview);
+      var img = document.getElementById('preview');
+      img.src = acceptedFiles[0].preview;
+      img.style.display="block";
+      image = acceptedFiles;
+      console.log(image);
+  }
+
 
   constructor (props) {
     super(props);
@@ -51,6 +66,7 @@ export default class Uploader extends Component {
         width: 512,
         height: 340
       },
+      image:'',
       uploaded: null,
       ...initialInputs
     };
@@ -73,10 +89,10 @@ export default class Uploader extends Component {
     e.preventDefault();
     var lat=parseInt(this.refs.lat.value.trim());
     var lng=parseInt(this.refs.lng.value.trim());
-    var img=this.refs.image.value;
+    var img=image;
     var type=this.refs.imgType.value;
 
-    var input_file = $("#image_input")
+    var input_file = [{files: image}];
 
     if(!lat || !lng || !img || !type){
       alert("Please enter all the info");
@@ -84,7 +100,6 @@ export default class Uploader extends Component {
     }
     console.clear();
     console.log(img);
-    console.log(this.refs.image);
     console.log(lat + "  " + lng);             //here is your latitude longitude and user data
     console.log(this.props.user);
     console.log(type);
@@ -94,6 +109,7 @@ export default class Uploader extends Component {
     var types = {"Landscape": 1, "People": 2, "Architecture": 3};
     console.log(types[type]);
     var that = this;
+    console.log(input_file);
 
     EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
@@ -125,9 +141,12 @@ export default class Uploader extends Component {
               showInfo: false,
               imageUrl: EmbarkJS.Storage.getUrl(input_file_hash),
               content: true,
-              title:'Image Title',
+              title:'',
+              userid: 0,
+              imageid: 0,
               tags:[type],
-              key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
+              key: Date.now(),
+              upvotes:'0' // Add a key property for: http://fb.me/react-warning-keys
             },
           ],
         });
@@ -135,6 +154,7 @@ export default class Uploader extends Component {
         that.props.updateMarkers(that.state.markers);
         that.setState({markers: that.props.markerData});
         console.log(markers);
+        that.props.showUserPics();
       });
     });
     
@@ -149,14 +169,13 @@ export default class Uploader extends Component {
 
     return (
       <AppContainer>
-        <Viewport
-          ref="viewport"
-          effects={effects}
-          onLoadNewContent={this.onLoadNewContent}
-          content={content}
-        />
+        <div style={{position: 'absolute', top:'50%', left: '25%', transform:'translate( -50% , -50% )', zIndex:'100'}} id='drop-box'>
+          <Dropzone onDrop={this.onDrop}>
+                <div style={{padding: '20px'}}>Try dropping some files here, or click to select files to upload.</div>
+          </Dropzone>
+        </div>
+        <img src="" id='preview' style={{position: 'absolute', top:'50%', left: '25%', transform:'translate( -50% , -50% )', width: '40vw', display:'none', zIndex:101}}/>
         <form style={{position:'absolute', right: '5vw', top: '50vh', transform:'translate(0 , -50%)', zIndex:'100', display:'block', width:'30vw'}} onSubmit={this.submitImage.bind(this)}>
-          <div className="input-field"><input type="file" id='image_input' className="input" ref="image" onChange={this.imageChange} placeholder="select Image"></input><br/><br/></div>
           <label for="lat" style={{color:'black'}}>Latitude</label>
           <div className="input-field"><input type='number' step="0.00001" className="input" ref="lat" onChange={this.latChange} defaultValue={this.props.curLat ? this.props.curLat : 0} placeholder='Lat'></input></div>
           <label for="lng" style={{color:'black'}}>Longitude</label>

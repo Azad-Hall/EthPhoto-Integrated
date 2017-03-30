@@ -120,6 +120,8 @@ contract ethDB{
 	    userCoins[msg.sender]-=1;
 	}
 	
-	
+	function getNumberOfCoins() constant returns (uint coins) {
+		return userCoins[msg.sender];
+	}
     
 }
