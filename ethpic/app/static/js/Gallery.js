@@ -16,9 +16,15 @@ var Gallery = React.createClass  ({
     }
   },
 
+
+
   updateValues() {
   	var that = this;
-  	ethDB.getNumberOfPhotos().then(function(photos){
+
+  	var args = [];
+  	args.push({from: this.props.addresses[0], to: ethDB.address});
+
+  	ethDB.getNumberOfPhotos(args).then(function(photos){
   		console.log("PIC", photos);
     	that.state.pic = photos.c[0];
     });
@@ -26,6 +32,7 @@ var Gallery = React.createClass  ({
     	console.log("COIN", coins);
     	that.state.coin = coins.c[0];
     });
+    // this.props.getBalances();
   },
 
   componentDidMount() {
@@ -41,8 +48,6 @@ var Gallery = React.createClass  ({
     this.setState({ data: this.props.data });
     this.updateValues();
   },
-
-
 
   onDelete(e) {
   	e.preventDefault();
@@ -66,7 +71,7 @@ var Gallery = React.createClass  ({
 	      { this.props.open ?
 	        <div className="overlay" onClick={this.props.hideDash} key='gallery'>
 	  			   <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username} 
-	  			   onDelete={this.onDelete} pic={this.state.pic} coin={this.state.coin}/>
+	  			   onDelete={this.onDelete} pic={this.state.pic} coin={this.state.coin} addresses={this.props.addresses} ether={this.props.ether}/>
 	        </div>
 	        :<div></div>}
 
@@ -83,7 +88,7 @@ var Tiles = React.createClass({
 		// Pass data to each tile and assign a key
 		return (
 			<div className="tiles">
-        <UserInfo logout={this.props.logout} username={this.props.username} pic={this.props.pic} coin={this.props.coin}/>
+        <UserInfo logout={this.props.logout} username={this.props.username} pic={this.props.pic} coin={this.props.coin} ether={this.props.ether} addresses={this.props.addresses}/>
         <div className="imgContainer" onClick={this.stopPropagation}>
   				{this.props.data.map((data) => {
   					return <Tile data={data} key={data.id} onDelete={this.props.onDelete}/>
@@ -107,7 +112,7 @@ var UserInfo = React.createClass({
 	        <div className='user-data col s4'>
 	        	<img src='./eth.png'/>
 	        	<span>Eth</span>
-	        	<span id='Eth'>6969</span>
+	        	<span id='Eth'>{this.props.ether}</span>
 	        </div>
 	        <div className='user-data col s4'>
 	        	<img src='./coin.png'/>
@@ -121,7 +126,7 @@ var UserInfo = React.createClass({
 	        </div>
         </div>
         <div>
-          <h1>Address Goes Here</h1>
+          <h5>{this.props.addresses}</h5>
         </div>
         <hr/>
       </div>

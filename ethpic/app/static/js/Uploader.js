@@ -84,6 +84,7 @@ export default class Uploader extends Component {
       if(window.place){
         document.getElementById('lat').value = parseFloat(Math.round(window.place.geometry.location.lat() * 10000) / 10000).toFixed(4);
         document.getElementById('lng').value = parseFloat(Math.round(window.place.geometry.location.lng() * 10000) / 10000).toFixed(4);
+        window.place = null;
       }
     }, 200);
   }
@@ -127,7 +128,11 @@ export default class Uploader extends Component {
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
-      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: '0x100590'}, {gasPrice: '0x100590'}).then(function(result){
+      var args = [];
+      args.push({from: that.props.addresses[0], to: ethDB.address});
+
+      console.log('args', args);
+      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: '0x100590', gasPrice: '0x100590', from: '0x'+that.props.addresses[0], to: ethDB.address}).then(function(result){
         console.log("UPLOADED RESULT", result);
 
         var obj = {};
