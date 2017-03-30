@@ -20,6 +20,7 @@ var Upload = React.createClass({
                                               setCurLatLng={this.props.setCurLatLng}
                                               showUserPics={this.props.showUserPics}
                                               addresses={this.props.addresses}
+                                              signTransactions={this.props.signTransactions}
                                                /> : <div></div>}
       </div>
     )

@@ -46,7 +46,8 @@ var App = React.createClass ({
       global_keystore: '',
       addresses: [],
       web3: '',
-      ether: []
+      ether: [],
+      pwDerivedKey: ''
     }
   },
 
@@ -55,9 +56,9 @@ var App = React.createClass ({
       <div className="App">
         <Navbar loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
         <Login requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin} doSignUp={this.doSignUp}/>
-        <Map ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
-        <Gallery ether={this.state.ether} showUserPics={this.showUserPics} data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
-        <Upload showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
+        <Map signTransactions={this.signTransactions} ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
+        <Gallery signTransactions={this.signTransactions} ether={this.state.ether} showUserPics={this.showUserPics} data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
+        <Upload signTransactions={this.signTransactions} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
       </div>
     );
   },
@@ -86,9 +87,49 @@ var App = React.createClass ({
     this.setState({requestLogin:false});
   },
 
-  doLogin(user,pswd){
-    this.setState({requestLogin:false, loggedIn: true, userName: user});
-    this.showUserPics();
+  doLogin(randomSeed,password){
+
+    var that = this;
+    lightwallet.keystore.createVault({
+      password: password,
+      seedPhrase: randomSeed, // Optionally provide a 12-word seed phrase
+      // salt: fixture.salt,     // Optionally provide a salt.
+                                 // A unique salt will be generated otherwise.
+      // hdPathString: hdPath    // Optional custom HD Path String
+    }, function (err, ks) {
+
+      // Some methods will require providing the `pwDerivedKey`,
+      // Allowing you to only decrypt private keys on an as-needed basis.
+      // You can generate that value with this convenient method:
+      ks.keyFromPassword(password, function (err, pwDerivedKey) {
+        if (err) throw err;
+
+        that.state.pwDerivedKey = pwDerivedKey;
+        // generate five new address/private key pairs
+        // the corresponding private keys are also encrypted
+        ks.generateNewAddress(pwDerivedKey, 1);
+        var addr = ks.getAddresses();
+        console.log(ks);
+        console.log(ks.exportPrivateKey(addr[0], pwDerivedKey));
+
+        that.setState({
+              requestLogin:false, 
+              loggedIn: true, 
+              userName: 'Generate Something', 
+              global_keystore: ks,
+              addresses: addr
+            });
+        that.showUserPics();
+        // ks.passwordProvider = function (callback) {
+        //   var pw = prompt("Please enter password", "Password");
+        //   callback(null, pw);
+        // };
+
+        // Now set ks as transaction_signer in the hooked web3 provider
+        // and you can start using web3 using the keys/addresses in ks!
+      });
+    });
+    
   },
 
   doSignUp(password){
@@ -112,11 +153,13 @@ var App = React.createClass ({
       ks.keyFromPassword(password, function (err, pwDerivedKey) {
         if (err) throw err;
 
+        that.state.pwDerivedKey = pwDerivedKey;
         // generate five new address/private key pairs
         // the corresponding private keys are also encrypted
         ks.generateNewAddress(pwDerivedKey, 1);
         var addr = ks.getAddresses();
         console.log(ks);
+        console.log(ks.exportPrivateKey(addr[0], pwDerivedKey));
 
         that.setState({
               requestLogin:false, 
@@ -125,6 +168,7 @@ var App = React.createClass ({
               global_keystore: ks,
               addresses: addr
             });
+        that.showUserPics();
         // ks.passwordProvider = function (callback) {
         //   var pw = prompt("Please enter password", "Password");
         //   callback(null, pw);
@@ -206,7 +250,26 @@ var App = React.createClass ({
         });
       });
     });
+  },
+
+  signTransactions(functionName, args) {
+    var txOptions = {};
+    txOptions.to = ethDB.address;
+    txOptions.nonce = 1
+    var registerTx = lightwallet.txutils.functionTx(ethDB.abi, functionName, args, txOptions);
+    var signedRegisterTx = lightwallet.signing.signTx(this.state.global_keystore, this.state.pwDerivedKey, registerTx, this.state.addresses[0]);
+    console.log(signedRegisterTx);
+    var web3 = new Web3();
+    var web3Provider = new HookedWeb3Provider({
+      host: "http://localhost:8545",
+      transaction_signer: this.state.global_keystore
+    });
+
+    web3.setProvider(web3Provider);
+    return web3.eth.sendRawTransaction(signedRegisterTx);
   }
+
+
 
 })
 
