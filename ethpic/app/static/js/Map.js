@@ -3,6 +3,8 @@ import {
   Component,
 } from "react";
 
+const server_side = "http://139.59.72.137:8080/ipfs/";
+
 import CSSTransitions from 'react-addons-css-transition-group';
 
 import update from "react-addons-update";
@@ -55,9 +57,11 @@ export default class Map extends Component {
       var arr = [...Array(users.c[0]).keys()];
       console.log(arr);
 
+
       arr.forEach(function(listitem, curr){
 
         curr = curr + 1;
+
         ethDB.getNumberOfPhotosByUID(curr).then(function(photos){
           console.log("PHOTOS", photos);
           console.log("3", that.state);
@@ -67,9 +71,10 @@ export default class Map extends Component {
 
           new_arr.forEach(function(new_listitem, j) {
 
+
             console.log(curr, j);
             ethDB.getPhotoByUID(curr, j).then(function(data){
-              
+
               console.log(data);
               console.log(data[2], data[3]);
               var obj = {};
@@ -95,7 +100,7 @@ export default class Map extends Component {
                     },
                     defaultAnimation: 2,
                     showInfo: false,
-                    imageUrl: EmbarkJS.Storage.getUrl(data[1]),
+                    imageUrl: server_side + data[1],
                     content: true,
                     title:'',
                     userid: curr,
@@ -113,6 +118,7 @@ export default class Map extends Component {
             });
           });
         }); 
+
       });
     });
   }
@@ -168,7 +174,7 @@ export default class Map extends Component {
   updateMarkers(){
    console.log('11111');
    this.props.updateMarkers(this.state.markers);
-   this.setState({markers: this.props.markerData});  
+   this.setState({markers: this.props.markerData});
   }
   // handleChange(event){
   //   this.setState({formValue:event.target.value});

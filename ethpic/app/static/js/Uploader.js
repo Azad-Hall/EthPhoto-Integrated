@@ -12,6 +12,8 @@ import $ from "./jquery";
 import update from "react-addons-update";
 import Dropzone from 'react-dropzone';
 
+const server_side = "http://139.59.72.137:8080/ipfs/";
+
 const percentagePrint = v => (v * 100).toFixed(0) + "%";
 const radiantPrint = r => (180 * r / Math.PI).toFixed(0) + "°";
 
@@ -111,11 +113,11 @@ export default class Uploader extends Component {
     var that = this;
     console.log(input_file);
 
-    EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
+    EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
-      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: 1050000}).then(function(result){
+      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: '0x100590'}, {gasPrice: '0x100590'}).then(function(result){
         console.log("UPLOADED RESULT", result);
 
         var obj = {};
@@ -139,7 +141,7 @@ export default class Uploader extends Component {
               },
               defaultAnimation: 2,
               showInfo: false,
-              imageUrl: EmbarkJS.Storage.getUrl(input_file_hash),
+              imageUrl: server_side + input_file_hash,
               content: true,
               title:'',
               userid: 0,
@@ -157,7 +159,7 @@ export default class Uploader extends Component {
         that.props.showUserPics();
       });
     });
-    
+
   }
 
   latChange(){

@@ -9,7 +9,8 @@ var addToLog = function(id, txt) {
 // ===========================
 
 $(document).ready(function() {
-  $("button.dataSet").click(function() {
+  $("button.dataSet").click(function(e) {
+    e.preventDefault();
     var topic_value = $(".inputTopic").val();
     addToLog("#blockchain", "value(" + topic_value + ")");
     var input_file = $(".userUploadFile");
@@ -27,7 +28,7 @@ $(document).ready(function() {
       EthPic.get_user(ind_user).then(function(pic_hash) {
         console.log(pic_hash);
       });
-      ind_user += 1;  
+      ind_user += 1;
   });
   var ind_topic = 0;
   $("button.topicGet").click(function() {
@@ -36,16 +37,16 @@ $(document).ready(function() {
       EthPic.get_topic(topic_value, ind_topic).then(function(pic_hash) {
         console.log(pic_hash);
       });
-      ind_topic += 1;  
+      ind_topic += 1;
   });
   $("button.photoDel").click(function() {
     var topic_value = $(".inputTopic").val();
     var photoHash = $(".photoHash").val();
       EthPic.del_photo(photoHash, topic_value, {gas: 1050000});
       ind_topic = 0;
-      ind_user = 0;  
+      ind_user = 0;
   });
-  
+
 });
 
 $(document).ready(function() {
@@ -64,7 +65,7 @@ $(document).ready(function() {
   });
 
 
-  EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
+  EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
 
   $("#storage button.setIpfsText").click(function() {
     var value = $("#storage input.ipfsText").val();
@@ -103,4 +104,3 @@ $(document).ready(function() {
   });
 
 });
-
