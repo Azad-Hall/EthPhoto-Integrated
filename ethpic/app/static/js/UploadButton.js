@@ -41,7 +41,8 @@ var UploadButton = React.createClass({
                                                                                             curLng={this.props.curLng}
                                                                                             markerData={this.props.markerData} 
                                                                                             updateMarkers={this.props.updateMarkers}
-                                                                                            setCurLatLng={this.props.setCurLatLng} /></div> : <div></div>}
+                                                                                            setCurLatLng={this.props.setCurLatLng}
+                                                                                            showUserPics={this.props.showUserPics} /></div> : <div></div>}
         </CSSTransitions>
       </div>
     )

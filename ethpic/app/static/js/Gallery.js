@@ -1,7 +1,7 @@
 import React from 'react';
 // import './Gallery.css';
 import CSSTransitions from 'react-addons-css-transition-group';
-
+import $ from './jquery';
 
 const styles={
   transition: 'all 300ms ease'
@@ -10,45 +10,49 @@ const styles={
 var Gallery = React.createClass  ({
   getInitialState(){
     return{
-      data : [{
-      	id: 1,
-      	name: "Island",
-      	image: "https://images.unsplash.com/photo-1442530792250-81629236fe54?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=980&h=980&fit=crop&s=9631adb2d2f752e3a0734f393fef634b"
-      }, {
-      	id: 2,
-      	name: "Forest",
-      	image: "https://images.unsplash.com/photo-1468851508491-4f854ec88aa0?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=900&h=900&fit=crop&s=b1222b6a1d3694cac76d2a23c3a02254"
-      }, {
-      	id: 3,
-      	name: "Whale",
-      	image: "https://images.unsplash.com/photo-1454991727061-be514eae86f7?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=900&h=900&fit=crop&s=3c55430f01fe9ac9a9ccb3383d1416ff"
-      }, {
-      	id: 4,
-      	name: "Mountain",
-      	image: "https://images.unsplash.com/photo-1467890947394-8171244e5410?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=980&h=980&fit=crop&s=9396f0adf263b51b44626228225684d0"
-      }, {
-      	id: 5,
-      	name: "Boat",
-      	image: "https://images.unsplash.com/photo-1443302382600-0bfacc473376?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=980&h=980&fit=crop&s=0c0f26518c1001f67b6c2e4480a8d3e0"
-      }, {
-      	id: 6,
-      	name: "Flowers",
-      	image: "https://images.unsplash.com/photo-1429091443922-e7d9ae79a837?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=900&h=900&fit=crop&s=e81cb6a60c53788559edb9bec21b80fc"
-      }, {
-      	id: 7,
-      	name: "Fire",
-      	image: "https://images.unsplash.com/photo-1468245856972-a0333f3f8293?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=900&h=900&fit=crop&s=1f57cc13084e32839627453821a43abf"
-      }, {
-      	id: 8,
-      	name: "Garden",
-      	image: "https://images.unsplash.com/photo-1427392797425-39090deb14ec?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=900&h=900&fit=crop&s=8bfe49466d0da200e61128a8ab0e8fbe"
-      }, {
-      	id: 9,
-      	name: "Bridge",
-      	image: "https://images.unsplash.com/photo-1445723356089-6dbb51d9c4f8?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=980&h=980&fit=crop&s=6e476c6e7ce1adac161295616d1bec05"
-      }]
+      data : [],
+      pic: 0,
+      coin: 0
     }
   },
+
+  updateValues() {
+  	var that = this;
+  	ethDB.getNumberOfPhotos().then(function(photos){
+  		console.log("PIC", photos);
+    	that.state.pic = photos.c[0];
+    });
+    ethDB.getNumberOfCoins().then(function(coins){
+    	console.log("COIN", coins);
+    	that.state.coin = coins.c[0];
+    });
+  },
+
+  componentDidMount() {
+  	console.log("STATE:", this.state.data);
+  	this.setState({ data: this.props.data });
+  	this.updateValues();
+  	if (this.props.open) {
+  		that.props.showUserPics();
+  	}
+  },
+
+  componentWillReceiveProps() {
+    this.setState({ data: this.props.data });
+    this.updateValues();
+  },
+
+
+
+  onDelete(e) {
+  	e.preventDefault();
+  	var that = this;
+  	ethDB.deletePhoto(this.props.data.id).then(function(success){
+  		console.log(success);
+  		that.props.showUserPics();
+  	});
+  },
+
 
 	render() {
 		return (
@@ -61,7 +65,8 @@ var Gallery = React.createClass  ({
 	          transitionAppearTimeout = {300}>
 	      { this.props.open ?
 	        <div className="overlay" onClick={this.props.hideDash} key='gallery'>
-	  			   <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username}/>
+	  			   <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username} 
+	  			   onDelete={this.onDelete} pic={this.state.pic} coin={this.state.coin}/>
 	        </div>
 	        :<div></div>}
 
@@ -78,10 +83,10 @@ var Tiles = React.createClass({
 		// Pass data to each tile and assign a key
 		return (
 			<div className="tiles">
-        <UserInfo logout={this.props.logout} username={this.props.username}/>
+        <UserInfo logout={this.props.logout} username={this.props.username} pic={this.props.pic} coin={this.props.coin}/>
         <div className="imgContainer" onClick={this.stopPropagation}>
   				{this.props.data.map((data) => {
-  					return <Tile data={data} key={data.id} />
+  					return <Tile data={data} key={data.id} onDelete={this.props.onDelete}/>
   				})}
   			</div>
       </div>
@@ -97,12 +102,26 @@ var UserInfo = React.createClass({
   render(){
     return(
       <div className="userData" onClick={this.stopPropagation}>
-        <a href="#" onClick={this.props.logout}><i className="material-icons">phonelink_erase</i></a>
-        <div className="profilePicture">
-          <img src="https://images.unsplash.com/photo-1442530792250-81629236fe54?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=980&h=980&fit=crop&s=9631adb2d2f752e3a0734f393fef634b"/>
+        <a className="row" href="#" onClick={this.props.logout}><i className="col s4 material-icons">phonelink_erase</i></a>
+        <div className="row" style={{padding:'15% 15%'}}>
+	        <div className='user-data col s4'>
+	        	<img src='./eth.png'/>
+	        	<span>Eth</span>
+	        	<span id='Eth'>6969</span>
+	        </div>
+	        <div className='user-data col s4'>
+	        	<img src='./coin.png'/>
+	        	<span>Coin</span>
+	        	<span id='Coin'>{this.props.coin}</span>
+	        </div>
+	        <div className='user-data col s4'>
+	        	<img src='./photo.png'/>
+	        	<span>Pic</span>
+	        	<span id='Pic'>{this.props.pic}</span>
+	        </div>
         </div>
         <div>
-          <h1>{this.props.username}</h1>
+          <h1>Address Goes Here</h1>
         </div>
         <hr/>
       </div>
@@ -192,7 +211,7 @@ class Tile extends React.Component {
 					alt={this.props.data.name}
 					style={tileStyle}
 				/>
-				<a href="#" onClick={(e) => {e.preventDefault(); console.log('fuck yeah');}} style={{position:'absolute', marginLeft:'-3vw' , marginTop:'1vw' , color:'white'}}><i className="material-icons">delete</i></a>
+				<a href="#" onClick={this.props.onDelete} style={{position:'absolute', marginLeft:'-3vw' , marginTop:'1vw' , color:'white'}}><i className="material-icons">delete</i></a>
 			</div>
 		);
 	}

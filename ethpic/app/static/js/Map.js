@@ -23,17 +23,20 @@ export default class Map extends Component {
     imageView:{
       visible: false,
       url:'https://unsplash.it/800/800?image=234',
-      title:'Image Title',
+      title:'',
       tags:['tag1', 'tag2' , 'tag3' ],
+      upvotes:''
     },
+    currentMarker: '',
     formValue: "",
   };
 
-  handleMapClick = this.handleMapClick.bind(this);
+  // handleMapClick = this.handleMapClick.bind(this);
   handleMarkerClick = this.handleMarkerClick.bind(this);
   handleMarkerClose = this.handleMarkerClose.bind(this);
-  handleMarkerRightclick = this.handleMarkerRightclick.bind(this);
+  // handleMarkerRightclick = this.handleMarkerRightclick.bind(this);
   closeImageView = this.closeImageView.bind(this);
+  upvote = this.upvote.bind(this);
 
   componentDidMount() {
     console.clear();
@@ -53,13 +56,21 @@ export default class Map extends Component {
 
       var arr = [...Array(users.c[0]).keys()];
       console.log(arr);
+
+
       arr.forEach(function(listitem, curr){
+
+        curr = curr + 1;
 
         ethDB.getNumberOfPhotosByUID(curr).then(function(photos){
           console.log("PHOTOS", photos);
           console.log("3", that.state);
 
-          for (var j = 0; j < photos.c[0]; j++) {
+          var new_arr = [...Array(photos.c[0]).keys()];
+          console.log(new_arr);
+
+          new_arr.forEach(function(new_listitem, j) {
+
 
             console.log(curr, j);
             ethDB.getPhotoByUID(curr, j).then(function(data){
@@ -84,16 +95,19 @@ export default class Map extends Component {
                 $push: [
                   {
                     position: {
-                      lng: parseInt(data[2]),
-                      lat: parseInt(data[3])
+                      lng: parseInt(data[2])/10000,
+                      lat: parseInt(data[3])/10000
                     },
                     defaultAnimation: 2,
                     showInfo: false,
                     imageUrl: server_side + data[1],
                     content: true,
-                    title:'Image Title',
+                    title:'',
+                    userid: curr,
+                    imageid: j,
                     tags:[types[parseInt(data[4])]],
                     key: data[0], // Add a key property for: http://fb.me/react-warning-keys
+                    upvotes: [parseInt(data[5])],
                   },
                 ],
               });
@@ -102,8 +116,9 @@ export default class Map extends Component {
               that.setState({markers: that.props.markerData});
               console.log(markers);
             });
-          }
-        });
+          });
+        }); 
+
       });
     });
   }
@@ -111,41 +126,50 @@ export default class Map extends Component {
 
   componentWillReceiveProps() {
     this.setState({markers: this.props.markerData});
+    let tempState = this.state;
+    tempState.imageView.upvotes = this.props.markerData.upvotes;
+    this.props.markerData.map(marker => {
+      if(marker === this.state.currentMarker){
+        tempState.imageView.upvotes = marker.upvotes;
+        console.log(marker.upvotes);
+      }
+    })
+    this.setState({tempState});
   }
 
   /*
    * This is called when you click on the map.
    * Go and try click now.
    */
-  handleMapClick(event) {
-    console.log(event.latLng);
-    this.props.setCurLatLng(event.latLng);
-    this.setState({
-      markers: this.state.markers.map(marker => {
-        marker.showInfo = false
-        return marker;
-      }),
-    })
-    let { markers } = this.state;
-    markers = update(markers, {
-      $push: [
-        {
-          position: event.latLng,
-          defaultAnimation: 2,
-          showInfo: false,
-          imageUrl: 'https://unsplash.it/800/800?image='+[Math.floor(Math.random() * 1000)],
-          content: true,
-          title:'Image Title',
-          tags:['tag1', 'tag2' , 'tag3' ],
-          key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
-        },
-      ],
-    });
-    this.setState({ markers });
-    this.props.updateMarkers(this.state.markers);
-    this.setState({markers: this.props.markerData});
-    console.log(markers);
-  }
+  // handleMapClick(event) {
+  //   console.log(event.latLng);
+  //   this.props.setCurLatLng(event.latLng);
+  //   this.setState({
+  //     markers: this.state.markers.map(marker => {
+  //       marker.showInfo = false
+  //       return marker;
+  //     }),
+  //   })
+  //   let { markers } = this.state;
+  //   markers = update(markers, {
+  //     $push: [
+  //       {
+  //         position: event.latLng,
+  //         defaultAnimation: 2,
+  //         showInfo: false,
+  //         imageUrl: 'https://unsplash.it/800/800?image='+[Math.floor(Math.random() * 1000)],
+  //         content: true,
+  //         title:'Image Title',
+  //         tags:['tag1', 'tag2' , 'tag3' ],
+  //         key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
+  //       },
+  //     ],
+  //   });
+  //   this.setState({ markers });
+  //   this.props.updateMarkers(this.state.markers);
+  //   this.setState({markers: this.props.markerData});
+  //   console.log(markers);
+  // }
 
   updateMarkers(){
    console.log('11111');
@@ -157,6 +181,7 @@ export default class Map extends Component {
   // }
 
   handleMarkerClick(targetMarker){
+    console.log(this.state.imageView.upvotes);
     let tempState = this.state;
     this.state.markers.map(marker => {
         if(marker === targetMarker){
@@ -164,14 +189,15 @@ export default class Map extends Component {
           tempState.imageView.url = marker.imageUrl;
           tempState.imageView.title = marker.title;
           tempState.imageView.tags = marker.tags;
-          console.log('-----------------------');
-          console.log(marker.tags);
           tempState.imageView.visible = true;
+          tempState.imageView.upvotes = marker.upvotes;
+          console.log(marker.upvotes);
+          console.log(tempState.imageView.upvotes);
           this.setState({tempState});
         }
     })
+    this.setState({markers: this.props.markerData, currentMarker: targetMarker});
     this.props.updateMarkers(this.state.markers);
-    this.setState({markers: this.props.markerData});
   }
 
   handleMarkerClose(targetMarker){
@@ -189,22 +215,22 @@ export default class Map extends Component {
   }
 
 
-  handleMarkerRightclick(index, event) {
-    /*
-     * All you modify is data, and the view is driven by data.
-     * This is so called data-driven-development. (And yes, it's now in
-     * web front end and even with google maps API.)
-     */
-    let { markers } = this.state;
-    markers = update(markers, {
-      $splice: [
-        [index, 1],
-      ],
-    });
-    this.setState({ markers });
-    this.props.updateMarkers(this.state.markers);
-    this.setState({markers: this.props.markerData});
-  }
+  // handleMarkerRightclick(index, event) {
+  //   /*
+  //    * All you modify is data, and the view is driven by data.
+  //    * This is so called data-driven-development. (And yes, it's now in
+  //    * web front end and even with google maps API.)
+  //    */
+  //   let { markers } = this.state;
+  //   markers = update(markers, {
+  //     $splice: [
+  //       [index, 1],
+  //     ],
+  //   });
+  //   this.setState({ markers });
+  //   this.props.updateMarkers(this.state.markers);
+  //   this.setState({markers: this.props.markerData});
+  // }
 
   closeImageView(){
     let imageView = this.state;
@@ -236,6 +262,49 @@ export default class Map extends Component {
    });
  }
 
+ upvote(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    var that = this;
+    
+    let promises = this.state.markers.map(marker => {
+      if(marker === this.state.currentMarker) {
+        return ethDB.upvote(marker.userid, marker.imageid).then(function(success){
+          console.log(success);
+          marker.upvotes = parseInt(marker.upvotes) ? parseInt(marker.upvotes) + 1 : 1;
+          return marker;
+        });
+      }
+      else{
+        return marker;
+      }
+    });
+
+    Promise.all(promises)
+      .then(results => {
+        // Handle results
+        that.setState({ markers: results});
+        this.props.updateMarkers(this.state.markers);
+        this.setState({markers: this.props.markerData});
+      })
+      .catch(e => {
+        console.error(e);
+      })
+
+    // this.setState({
+    //   markers: this.state.markers.map(marker => {
+    //     if(marker === this.state.currentMarker) {
+    //       ethDB.upvote(marker.userid, marker.imageid).then(function(success){
+    //         marker.upvotes = parseInt(marker.upvotes) ? parseInt(marker.upvotes) + 1 : 1
+    //       });
+    //     }
+    //     return marker;
+    //   }),
+    // })
+
+  }
+ 
   render() {
     return (
       <div>
@@ -251,13 +320,14 @@ export default class Map extends Component {
         onPlacesChanged={this.handlePlacesChanged}
       />
 
-      <ImageView data={this.state.imageView} closeImageView={this.closeImageView}/>
+      <ImageView data={this.state.imageView} closeImageView={this.closeImageView} upvoteImage={this.upvote}/>
       </div>
     );
   }
 }
 
 var ImageView = React.createClass({
+  
   render(){
     return(
       <div>
@@ -276,7 +346,8 @@ var ImageView = React.createClass({
                    <div className="card-image">
                      <img src={this.props.data.url} />
                      <span className="card-title">{this.props.data.title}</span>
-                     <a className="btn-floating halfway-fab waves-effect waves-light red" href={this.props.data.url} download=" " onClick={(e) => {e.stopPropagation();}}><i className="material-icons">play_for_work</i></a>
+                     <a className="btn halfway-fab waves-effect waves-light blue" style={{right:'2%', position:'absolute', transform:'translate( 0 , -50% )', borderRadius:'500px'}} onClick={this.props.upvoteImage}><i className="material-icons">thumb_up</i> {this.props.data.upvotes}</a>
+                     <a className="btn-floating halfway-fab waves-effect waves-light red" style={{transform:'translate( -250% , 50% )'}} href={this.props.data.url} download=" " onClick={(e) => {e.stopPropagation();}}><i className="material-icons">play_for_work</i></a>
                    </div>
                    <div className="card-content">
                      {this.props.data.tags.map(tag => {

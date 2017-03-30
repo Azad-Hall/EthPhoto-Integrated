@@ -18,6 +18,7 @@ var Upload = React.createClass({
                                               markerData={this.props.markerData} 
                                               updateMarkers={this.props.updateMarkers}
                                               setCurLatLng={this.props.setCurLatLng}
+                                              showUserPics={this.props.showUserPics}
                                                /> : <div></div>}
       </div>
     )
