@@ -24,7 +24,7 @@ contract ethDB{
     function ethDB(){
         _numberOfUsers=0;
         coinVault=1000000;
-    }
+    } 
     //uplod a new photo
 	function postPhoto(string photoString,int photoLon,int photoLat,uint photoTopic) returns (int result) {
 	    if(!isRegisteredAddress[msg.sender]){

@@ -72,8 +72,18 @@ export default class Uploader extends Component {
     };
   }
 
+  requestLocation(){
+    window.initialize();
+  }
+
   componentDidMount() {
     this.setState({markers: this.props.markerData});
+    setInterval(function(){
+      if(window.place){
+        document.getElementById('lat').value = parseFloat(Math.round(window.place.geometry.location.lat() * 10000) / 10000).toFixed(4);
+        document.getElementById('lng').value = parseFloat(Math.round(window.place.geometry.location.lng() * 10000) / 10000).toFixed(4);
+      }
+    }, 200);
   }
 
   onLoadNewContent = content => {
@@ -87,8 +97,8 @@ export default class Uploader extends Component {
 
   submitImage(e){
     e.preventDefault();
-    var lat=parseInt(this.refs.lat.value.trim());
-    var lng=parseInt(this.refs.lng.value.trim());
+    var lat=parseInt(this.refs.lat.value.trim() * 10000);
+    var lng=parseInt(this.refs.lng.value.trim() * 10000);
     var img=image;
     var type=this.refs.imgType.value;
 
@@ -134,8 +144,8 @@ export default class Uploader extends Component {
           $push: [
             {
               position: {
-                lng: lng,
-                lat: lat
+                lng: lng/10000,
+                lat: lat/10000
               },
               defaultAnimation: 2,
               showInfo: false,
@@ -169,18 +179,32 @@ export default class Uploader extends Component {
 
     return (
       <AppContainer>
-        <div style={{position: 'absolute', top:'50%', left: '25%', transform:'translate( -50% , -50% )', zIndex:'100'}} id='drop-box'>
+        <div style={{position: 'absolute', top:'35%', left: '50%', transform:'translate( -50% , -50% )', zIndex:'100'}} id='drop-box'>
           <Dropzone onDrop={this.onDrop}>
                 <div style={{padding: '20px'}}>Try dropping some files here, or click to select files to upload.</div>
           </Dropzone>
         </div>
-        <img src="" id='preview' style={{position: 'absolute', top:'50%', left: '25%', transform:'translate( -50% , -50% )', width: '40vw', display:'none', zIndex:101}}/>
-        <form style={{position:'absolute', right: '5vw', top: '50vh', transform:'translate(0 , -50%)', zIndex:'100', display:'block', width:'30vw'}} onSubmit={this.submitImage.bind(this)}>
-          <label for="lat" style={{color:'black'}}>Latitude</label>
-          <div className="input-field"><input type='number' step="0.00001" className="input" ref="lat" onChange={this.latChange} defaultValue={this.props.curLat ? this.props.curLat : 0} placeholder='Lat'></input></div>
-          <label for="lng" style={{color:'black'}}>Longitude</label>
-          <div className="input-field"><input type='number' step="0.00001" className="input" ref="lng" onChange={this.lngChange} defaultValue={this.props.curLng ? this.props.curLng : 0} placeholder='Lng'></input></div>
-          <div className="input-field">
+        <img src="" id='preview' style={{position: 'absolute', top:'30%', left: '50%', transform:'translate( -50% , -50% )', height: '50vh', display:'none', zIndex:101}}/>
+        <form style={{position:'absolute', left: '50vw', top: '70vh', transform:'translate( -50% , -50% )', zIndex:'100', display:'block', width:'60vw'}} onSubmit={this.submitImage.bind(this)}>
+          
+          <label for="location" style={{color:'black',display:'inline-block', width:'15%' , fontSize:'1.1rem'}}>Search:</label>
+          <input id="searchTextField" type="text" onFocus={this.requestLocation} onBlur={this.getLocation} style={{width:'85%',display:'inline-block'}}/>
+          
+          <div style={{width:'30vw', display:'inline-block'}}>
+            <label for="lat" style={{color:'black',display:'inline-block' , fontSize:'1.1rem'}}>Latitude</label>     
+            <div className="input-field">
+              <input disabled type='number' className="input" id='lat' step=".0001" ref="lat" defaultValue={this.props.curLat ? this.props.curLat : 0} placeholder='Lat'></input>
+            </div>
+          </div>
+          
+          <div style={{width:'30vw', display:'inline-block'}}>
+            <label for="lng" style={{color:'black',display:'inline-block' , fontSize:'1.1rem'}}>Longitude</label>
+            <div className="input-field">
+              <input disabled type='number' className="input" id='lng' step=".0001" ref="lng" defaultValue={this.props.curLng ? this.props.curLng : 0} placeholder='Lng'></input>
+            </div>
+          </div>
+
+          <div className="input-field" style={{width:'25vw', left:'25%', transform:'translate( -50% , 0 )'}}>
             <select ref="imgType" style={{display:'block'}}>
               <option value="" disabled selected>Choose your option</option>
               <option value="Landscape">Landscape</option>
@@ -188,7 +212,7 @@ export default class Uploader extends Component {
               <option value="Architecture">Architecture</option>
             </select>
           </div>
-          <button type="submit">Upload</button>
+          <button type="submit" style={{width:'25vw', display:'inline-block', right:0, transform:'translate(-80% , 0)'}}>Upload</button>
         </form>
 
       </AppContainer>

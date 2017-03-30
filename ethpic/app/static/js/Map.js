@@ -29,10 +29,10 @@ export default class Map extends Component {
     formValue: "",
   };
 
-  handleMapClick = this.handleMapClick.bind(this);
+  // handleMapClick = this.handleMapClick.bind(this);
   handleMarkerClick = this.handleMarkerClick.bind(this);
   handleMarkerClose = this.handleMarkerClose.bind(this);
-  handleMarkerRightclick = this.handleMarkerRightclick.bind(this);
+  // handleMarkerRightclick = this.handleMarkerRightclick.bind(this);
   closeImageView = this.closeImageView.bind(this);
   upvote = this.upvote.bind(this);
 
@@ -90,8 +90,8 @@ export default class Map extends Component {
                 $push: [
                   {
                     position: {
-                      lng: parseInt(data[2]),
-                      lat: parseInt(data[3])
+                      lng: parseInt(data[2])/10000,
+                      lat: parseInt(data[3])/10000
                     },
                     defaultAnimation: 2,
                     showInfo: false,
@@ -135,35 +135,35 @@ export default class Map extends Component {
    * This is called when you click on the map.
    * Go and try click now.
    */
-  handleMapClick(event) {
-    console.log(event.latLng);
-    this.props.setCurLatLng(event.latLng);
-    this.setState({
-      markers: this.state.markers.map(marker => {
-        marker.showInfo = false
-        return marker;
-      }),
-    })
-    let { markers } = this.state;
-    markers = update(markers, {
-      $push: [
-        {
-          position: event.latLng,
-          defaultAnimation: 2,
-          showInfo: false,
-          imageUrl: 'https://unsplash.it/800/800?image='+[Math.floor(Math.random() * 1000)],
-          content: true,
-          title:'Image Title',
-          tags:['tag1', 'tag2' , 'tag3' ],
-          key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
-        },
-      ],
-    });
-    this.setState({ markers });
-    this.props.updateMarkers(this.state.markers);
-    this.setState({markers: this.props.markerData});
-    console.log(markers);
-  }
+  // handleMapClick(event) {
+  //   console.log(event.latLng);
+  //   this.props.setCurLatLng(event.latLng);
+  //   this.setState({
+  //     markers: this.state.markers.map(marker => {
+  //       marker.showInfo = false
+  //       return marker;
+  //     }),
+  //   })
+  //   let { markers } = this.state;
+  //   markers = update(markers, {
+  //     $push: [
+  //       {
+  //         position: event.latLng,
+  //         defaultAnimation: 2,
+  //         showInfo: false,
+  //         imageUrl: 'https://unsplash.it/800/800?image='+[Math.floor(Math.random() * 1000)],
+  //         content: true,
+  //         title:'Image Title',
+  //         tags:['tag1', 'tag2' , 'tag3' ],
+  //         key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
+  //       },
+  //     ],
+  //   });
+  //   this.setState({ markers });
+  //   this.props.updateMarkers(this.state.markers);
+  //   this.setState({markers: this.props.markerData});
+  //   console.log(markers);
+  // }
 
   updateMarkers(){
    console.log('11111');
@@ -209,22 +209,22 @@ export default class Map extends Component {
   }
 
 
-  handleMarkerRightclick(index, event) {
-    /*
-     * All you modify is data, and the view is driven by data.
-     * This is so called data-driven-development. (And yes, it's now in
-     * web front end and even with google maps API.)
-     */
-    let { markers } = this.state;
-    markers = update(markers, {
-      $splice: [
-        [index, 1],
-      ],
-    });
-    this.setState({ markers });
-    this.props.updateMarkers(this.state.markers);
-    this.setState({markers: this.props.markerData});
-  }
+  // handleMarkerRightclick(index, event) {
+  //   /*
+  //    * All you modify is data, and the view is driven by data.
+  //    * This is so called data-driven-development. (And yes, it's now in
+  //    * web front end and even with google maps API.)
+  //    */
+  //   let { markers } = this.state;
+  //   markers = update(markers, {
+  //     $splice: [
+  //       [index, 1],
+  //     ],
+  //   });
+  //   this.setState({ markers });
+  //   this.props.updateMarkers(this.state.markers);
+  //   this.setState({markers: this.props.markerData});
+  // }
 
   closeImageView(){
     let imageView = this.state;

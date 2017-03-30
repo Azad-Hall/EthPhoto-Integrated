@@ -32,6 +32,9 @@ var Gallery = React.createClass  ({
   	console.log("STATE:", this.state.data);
   	this.setState({ data: this.props.data });
   	this.updateValues();
+  	if (this.props.open) {
+  		that.props.showUserPics();
+  	}
   },
 
   componentWillReceiveProps() {

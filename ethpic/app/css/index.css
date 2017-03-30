@@ -108,3 +108,14 @@ body {
   width: 100%;
 
 }
+.input{
+  height: 2.5rem;
+  width: 15vw !important;
+  transform: translate(50% , 0);
+  color: black !important;
+  margin:0;
+  border:none !important; 
+}
+.input-field{
+  display: inline-block;
+}
