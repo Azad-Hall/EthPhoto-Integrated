@@ -39,7 +39,6 @@ export default class Map extends Component {
   upvote = this.upvote.bind(this);
 
   componentDidMount() {
-    console.clear();
     console.log(this.state.markers);
     this.setState({markers: this.props.markerData});
     console.log(this.state.markers);
