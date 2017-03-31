@@ -49,6 +49,8 @@ export default class Map extends Component {
     console.log("1", this.state);
     var that = this;
 
+    // console.log(this.props.signTransactions('getNumberOfUsers', []));
+
     var h = ethDB.getNumberOfUsers().then(function(users){
       console.log("USERS", users);
       console.log("2", that.state);

@@ -129,7 +129,7 @@ export default class Uploader extends Component {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
       
-    var raw = that.props.signTransactions('postPhoto', [input_file_hash, lng, lat, types[type]])
+    var raw = that.props.signTransactions('postPhoto', [input_file_hash, parseInt(lng), parseInt(lat), parseInt(types[type])]);
     console.log(raw);
 
     
