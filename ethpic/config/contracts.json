@@ -1,12 +1,12 @@
 {
   "default": {
-    "gas": 1900000,
+    "gas": 3141592,
     "contracts": {
     	"ethDB": {
         "args": [
           "100"
         ],
-        "address": "0xfcea15733dd2a1c623fc6a375ce2fbc8657f6860"
+        "address": "0x3745abcc3c1d60c0076185a9934708e88396953d"
       }
     }
   }

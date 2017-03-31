@@ -2,6 +2,7 @@ import React from 'react';
 import Uploader from './Uploader';
 import fetch from "isomorphic-fetch";
 import CSSTransitions from 'react-addons-css-transition-group';
+import $ from './jquery';
 
 if (!window.fetch) window.fetch = fetch;
 
@@ -13,12 +14,12 @@ const ButtonStyle = {
 }
 const ContainerStyle = {
   position: 'absolute',
-  top: '60px',
+  top: '0px',
   bottom: '0',
   left: '0',
   right: '0',
-  background: '#eee',
-  overflowX: 'hidden'
+  background: '#131829',
+  overflow: 'hidden'
 }
 
 const styles={
@@ -26,10 +27,25 @@ const styles={
 }
 
 var UploadButton = React.createClass({
+  getInitialState(){
+    return{
+      rotate:0,
+      first:true
+    }
+  },
+
+  componentWillReceiveProps(){
+    this.state.rotate= !this.props.showUploader ? '45deg' : 0;
+    if(this.state.first){
+      this.state.rotate = 0;
+      this.state.first = false;
+    }
+  },
+
   render(){
     return(
       <div>
-        <a className="btn-floating btn-large waves-effect waves-light indigo" style={ButtonStyle} onClick={this.props.toggleShowUpload}><i className="material-icons">add</i></a>
+        <div onClick={this.props.toggleShowUpload}><a className="btn-floating btn-large waves-effect waves-light indigo" style={ButtonStyle}><i className="material-icons" style={{...styles, transform:'rotate('+this.state.rotate+')'}}>add</i>}</a></div>
         <CSSTransitions
           transitionName = 'slide'
           transitionEnterTimeout = {300}
@@ -37,14 +53,14 @@ var UploadButton = React.createClass({
           transitionAppear = {true}
           transitionAppearTimeout = {300}>
         {this.props.showUploader ? <div style={ContainerStyle} key={'uploader'} ><Uploader  user={this.props.user}
-                                                                                            curLat={this.props.curLat} 
+                                                                                            curLat={this.props.curLat}
                                                                                             curLng={this.props.curLng}
-                                                                                            markerData={this.props.markerData} 
+                                                                                            markerData={this.props.markerData}
                                                                                             updateMarkers={this.props.updateMarkers}
                                                                                             setCurLatLng={this.props.setCurLatLng}
                                                                                             showUserPics={this.props.showUserPics}
                                                                                             addresses={this.props.addresses}
-                                                                                            signTransactions={this.props.signTransactions} /></div> : <div></div>}
+                                                                                            functionCall={this.props.functionCall} /></div> : <div></div>}
         </CSSTransitions>
       </div>
     )

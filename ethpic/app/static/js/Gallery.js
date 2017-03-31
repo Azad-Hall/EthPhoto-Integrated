@@ -12,7 +12,8 @@ var Gallery = React.createClass  ({
     return{
       data : [],
       pic: 0,
-      coin: 0
+      coin: 0,
+      open: false
     }
   },
 
@@ -21,14 +22,14 @@ var Gallery = React.createClass  ({
   updateValues() {
   	var that = this;
 
-  	var args = [];
-  	args.push({from: this.props.addresses[0], to: ethDB.address});
+  	// var args = [];
+  	// args.push({from: this.props.addresses[0], to: ethDB.address});
 
-  	ethDB.getNumberOfPhotos(args).then(function(photos){
+    this.props.functionCall(this.props.addresses[0],'getNumberOfPhotos',[],function(err, photos){
   		console.log("PIC", photos);
     	that.state.pic = photos.c[0];
     });
-    ethDB.getNumberOfCoins().then(function(coins){
+    this.props.functionCall(this.props.addresses[0],'getNumberOfCoins',[],function(err, coins){
     	console.log("COIN", coins);
     	that.state.coin = coins.c[0];
     });
@@ -38,21 +39,29 @@ var Gallery = React.createClass  ({
   componentDidMount() {
   	console.log("STATE:", this.state.data);
   	this.setState({ data: this.props.data });
-  	this.updateValues();
+  	// this.updateValues();
   	if (this.props.open) {
-  		that.props.showUserPics();
+      this.updateValues();
+  		this.props.showUserPics();
   	}
   },
 
   componentWillReceiveProps() {
     this.setState({ data: this.props.data });
-    this.updateValues();
+
+    if (this.props.open) {
+      this.updateValues();
+      // this.state.open = this.props.open;
+      // this.updateValues();
+  		// this.props.showUserPics();
+  	}
   },
 
   onDelete(e) {
   	e.preventDefault();
   	var that = this;
-  	ethDB.deletePhoto(this.props.data.id).then(function(success){
+    console.log('id',that.props.data.id);
+    this.props.functionCall('0x'+that.props.addresses[0],'deletePhoto',[parseInt(that.props.data.id)],function(err, success){
   		console.log(success);
   		that.props.showUserPics();
   	});
@@ -69,9 +78,11 @@ var Gallery = React.createClass  ({
 	          transitionAppear = {true}
 	          transitionAppearTimeout = {300}>
 	      { this.props.open ?
-	        <div className="overlay" onClick={this.props.hideDash} key='gallery'>
-	  			   <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username} 
+	        <div style={{backgroundColor:'#131829', width:'100w', position:'absolute', overflowY:'scroll', top:'0', bottom:'0',left:'0',right:'0'}} onClick={this.props.hideDash} key='gallery'>
+            <div style={{width:'70vw' , margin:'0 auto', background:'#131829'}}>
+             <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username}
 	  			   onDelete={this.onDelete} pic={this.state.pic} coin={this.state.coin} addresses={this.props.addresses} ether={this.props.ether}/>
+           </div>
 	        </div>
 	        :<div></div>}
 
@@ -108,7 +119,7 @@ var UserInfo = React.createClass({
     return(
       <div className="userData" onClick={this.stopPropagation}>
         <a className="row" href="#" onClick={this.props.logout}><i className="col s4 material-icons">phonelink_erase</i></a>
-        <div className="row" style={{padding:'15% 15%'}}>
+        <div className="row" style={{padding:'5%'}}>
 	        <div className='user-data col s4'>
 	        	<img src='./eth.png'/>
 	        	<span>Eth</span>

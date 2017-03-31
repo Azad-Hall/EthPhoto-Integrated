@@ -12,11 +12,14 @@ import HookedWeb3Provider from 'hooked-web3-provider';
 import SignerProvider from 'ethjs-provider-signer';
 import sign from 'ethjs-signer';
 
+
+const server_side = "http://139.59.72.137:8080/ipfs/";
+
 var App = React.createClass ({
   getInitialState(){
     return{
       loggedIn: false,
-      requestLogin: true,
+      requestLogin: false,
       dashOpen: false,
       uploaderOpen: false,
       userName: '',
@@ -58,9 +61,9 @@ var App = React.createClass ({
       <div className="App">
         <Navbar loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
         <Login requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin} doSignUp={this.doSignUp}/>
-        <Map createVault={this.createVault} signTransactions={this.signTransactions} ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
-        <Gallery signTransactions={this.signTransactions} ether={this.state.ether} showUserPics={this.showUserPics} data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
-        <Upload signTransactions={this.signTransactions} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
+        <Map functionCall={this.functionCall} createVault={this.createVault} signTransactions={this.signTransactions} ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} addresses={this.state.addresses} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
+        <Gallery functionCall={this.functionCall} ether={this.state.ether} showUserPics={this.showUserPics} data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
+        <Upload functionCall={this.functionCall} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
       </div>
     );
   },
@@ -92,7 +95,7 @@ var App = React.createClass ({
   doLogin(randomSeed,password){
 
     this.createVault(password, randomSeed);
-    
+
   },
 
   createVault(password, randomSeed, cb) {
@@ -125,17 +128,22 @@ var App = React.createClass ({
           callback(null, pw);
         };
 
-        var provider = new SignerProvider('http://localhost:8545', {
-          signTransaction: (rawTx, cb) => cb(null, sign.sign(rawTx, '0x'+private_key)),
-          accounts: (cb) => cb(null, ['0x'+addr[0]]),
+        // var provider = new SignerProvider('http://139.59.72.137:8545', {
+        //   signTransaction: (rawTx, cb) => cb(null, sign.sign(rawTx, '0x'+private_key)),
+        //   accounts: (cb) => cb(null, ['0x'+addr[0]]),
+        // });
+
+        var provider = new HookedWeb3Provider({
+          host: 'http://139.59.72.137:8545',
+          transaction_signer: ks
         });
 
         ethDB.web3.setProvider(provider);
 
         that.setState({
-              requestLogin:false, 
-              loggedIn: true, 
-              userName: 'Generate Something', 
+              requestLogin:false,
+              loggedIn: true,
+              userName: 'Generate Something',
               global_keystore: ks,
               addresses: addr
             });
@@ -150,12 +158,12 @@ var App = React.createClass ({
   },
 
   doSignUp(password){
-    
+
     console.log('Generate the words and store them as username... the password is : ', password);
     var randomSeed = lightwallet.keystore.generateRandomSeed();
     console.log(randomSeed);
     this.createVault(password, randomSeed);
-    
+
   },
 
   getBalances() {
@@ -166,7 +174,7 @@ var App = React.createClass ({
 
     var web3 = new Web3();
     var web3Provider = new HookedWeb3Provider({
-      host: "http://localhost:8545",
+      host: "http://139.59.72.137:8545",
       transaction_signer: ks
     });
 
@@ -185,7 +193,7 @@ var App = React.createClass ({
   },
 
   showDash(){
-    this.setState({dashOpen:true, uploaderOpen:false});
+    this.setState({dashOpen:this.state.dashOpen ? false:true, uploaderOpen:false});
     this.getBalances();
     this.refs.map.closeImageView();
   },
@@ -204,13 +212,13 @@ var App = React.createClass ({
     this.setState({data: []});
     var that = this;
 
-    ethDB.getNumberOfPhotos().then(function(photos){
-      
+    this.functionCall(this.state.addresses[0],'getNumberOfPhotos',[],function(err, photos){
+
       var arr = [...Array(photos.c[0]).keys()];
       console.log(arr);
 
       arr.forEach(function(listitem, curr){
-        ethDB.getPhoto(curr).then(function(values){
+        that.functionCall(that.state.addresses[0],'getPhoto',[curr],function(err, values){
 
           console.log(values);
           let { data } = that.state;
@@ -219,7 +227,7 @@ var App = React.createClass ({
               {
                 id: curr,
                 name: "",
-                image: EmbarkJS.Storage.getUrl(values[1])
+                image: server_side + values[1]
               }
             ],
           });
@@ -275,7 +283,39 @@ var App = React.createClass ({
   //   return tx;
   // }
 
+  functionCall(fromAddr,functionName,functionArgs,callback) {
+    var ks = this.state.global_keystore;
+    console.log(ks);
+    var addresses = ks.getAddresses();
+    console.log(addresses);
 
+    var web3 = new Web3();
+    var web3Provider = new HookedWeb3Provider({
+      host: "http://139.59.72.137:8545",
+      transaction_signer: ks
+    });
+
+    web3.setProvider(web3Provider);
+    // var fromAddr = document.getElementById('functionCaller').value
+    // var contractAddr = document.getElementById('contractAddr').value
+    var abi = ethDB.abi
+    var contractAddr="0x3745abcc3c1d60c0076185a9934708e88396953d"
+    var contract = web3.eth.contract(abi).at(contractAddr)
+    // var functionName = document.getElementById('functionName').value
+    var args = functionArgs
+    // var valueEth = document.getElementById('sendValueAmount').value
+    var value = 0;//parseFloat(valueEth)*1.0e18
+    var gasPrice = 50000000000
+    var gas = 2000000
+    args.push({from: fromAddr, value: value, gasPrice: gasPrice, gas: gas})
+    // var callback = function(err, txhash) {
+    //   console.log('error: ' + err)
+    //   console.log('txhash: ' + txhash)
+    // }
+    args.push(callback)
+    console.log("args:",args)
+    contract[functionName].apply(this, args)
+  }
 
 })
 
