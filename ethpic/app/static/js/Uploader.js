@@ -128,6 +128,8 @@ export default class Uploader extends Component {
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
+
+      console.log(ethDB.postPhoto);
       
     var raw = that.props.signTransactions('postPhoto', [input_file_hash, parseInt(lng), parseInt(lat), parseInt(types[type])]);
     console.log(raw);
