@@ -9,6 +9,8 @@ import lightwallet from 'eth-lightwallet';
 import async from 'async';
 import Web3 from 'web3';
 import HookedWeb3Provider from 'hooked-web3-provider';
+import SignerProvider from 'ethjs-provider-signer';
+import sign from 'ethjs-signer';
 
 var App = React.createClass ({
   getInitialState(){
@@ -116,6 +118,19 @@ var App = React.createClass ({
         var addr = ks.getAddresses();
         console.log(ks);
         console.log(ks.exportPrivateKey(addr[0], pwDerivedKey));
+        var private_key = ks.exportPrivateKey(addr[0], pwDerivedKey);
+
+        ks.passwordProvider = function (callback) {
+          var pw = prompt("Please enter password", "Password");
+          callback(null, pw);
+        };
+
+        var provider = new SignerProvider('http://localhost:8545', {
+          signTransaction: (rawTx, cb) => cb(null, sign.sign(rawTx, '0x'+private_key)),
+          accounts: (cb) => cb(null, ['0x'+addr[0]]),
+        });
+
+        ethDB.web3.setProvider(provider);
 
         that.setState({
               requestLogin:false, 
@@ -127,10 +142,6 @@ var App = React.createClass ({
         that.showUserPics();
         if(cb)
           cb();
-        // ks.passwordProvider = function (callback) {
-        //   var pw = prompt("Please enter password", "Password");
-        //   callback(null, pw);
-        // };
 
         // Now set ks as transaction_signer in the hooked web3 provider
         // and you can start using web3 using the keys/addresses in ks!
@@ -231,29 +242,38 @@ var App = React.createClass ({
     }
   },
 
-  signTransactions(functionName, args) {
-    var web3 = new Web3();
-    web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
+  // signTransactions(functionName, args) {
+  //   var web3 = new Web3();
+  //   web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
 
-    var txOptions = {};
-    txOptions.to = this.add0x(ethDB.address);
-    var nonce =  web3.eth.getTransactionCount(this.add0x(this.state.addresses[0]));
-    txOptions.nonce = nonce;
-    var registerTx = lightwallet.txutils.functionTx(ethDB.abi, functionName, args, txOptions);
-    console.log(registerTx);
-    var signedRegisterTx = lightwallet.signing.signTx(this.state.global_keystore, this.add0x(this.state.pwDerivedKey), this.add0x(registerTx), this.add0x(this.state.addresses[0]));
-    console.log(signedRegisterTx);
+  //   var gasPrice = 50000000000
+  //   var gas = 3141592
+  //   var txOptions = {
+  //       gasPrice: gasPrice,
+  //       gasLimit: gas,
+  //       value: 10000000
+  //   };
+  //   console.log(web3.eth.getTransactionCount(this.add0x(this.state.addresses[0])));
+  //   txOptions.to = this.add0x(ethDB.address);
+  //   var nonce =  web3.eth.getTransactionCount(this.add0x(this.state.addresses[0]));
+  //   txOptions.nonce = nonce;
+  //   var registerTx = lightwallet.txutils.functionTx(ethDB.abi, functionName, args, txOptions);
+  //   console.log(registerTx, this.state.global_keystore, this.add0x(this.state.pwDerivedKey), this.add0x(this.state.addresses[0]));
+  //   var signedRegisterTx = lightwallet.signing.signTx(this.state.global_keystore, this.add0x(this.state.pwDerivedKey), this.add0x(registerTx), this.add0x(this.state.addresses[0]));
+  //   console.log(signedRegisterTx);
 
-    // var web3Provider = new HookedWeb3Provider({
-    //   host: "http://localhost:8545",
-    //   transaction_signer: this.state.global_keystore
-    // });
-    // console.log(web3Provider);
-    var tx = web3.eth.sendRawTransaction(this.add0x(signedRegisterTx));
-    var rpt = web3.eth.getTransactionReceipt(this.add0x(tx));
-    console.log(tx, rpt);
-    return tx;
-  }
+  //   var web3Provider = new HookedWeb3Provider({
+  //     host: "http://localhost:8545",
+  //     transaction_signer: this.state.global_keystore
+  //   });
+  //   console.log(web3Provider);
+  //   var tx = web3.eth.sendRawTransaction(this.add0x(signedRegisterTx), function(err, hash){
+  //     console.log(err, hash);
+  //   });
+  //   // var rpt = web3.eth.getTransactionReceipt(this.add0x(tx));
+  //   // console.log(tx, rpt);
+  //   return tx;
+  // }
 
 
 
