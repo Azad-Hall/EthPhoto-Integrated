@@ -252,21 +252,37 @@ var App = React.createClass ({
     });
   },
 
-  signTransactions(functionName, args) {
-    var txOptions = {};
-    txOptions.to = ethDB.address;
-    txOptions.nonce = 1
-    var registerTx = lightwallet.txutils.functionTx(ethDB.abi, functionName, args, txOptions);
-    var signedRegisterTx = lightwallet.signing.signTx(this.state.global_keystore, this.state.pwDerivedKey, registerTx, this.state.addresses[0]);
-    console.log(signedRegisterTx);
-    var web3 = new Web3();
-    var web3Provider = new HookedWeb3Provider({
-      host: "http://localhost:8545",
-      transaction_signer: this.state.global_keystore
-    });
+  add0x (input) {
+    if (typeof(input) !== 'string') {
+      return input;
+    }
+    else if (input.length < 2 || input.slice(0,2) !== '0x') {
+      return '0x' + input;
+    }
+    else {
+      return input;
+    }
+  },
 
-    web3.setProvider(web3Provider);
-    return web3.eth.sendRawTransaction(signedRegisterTx);
+  signTransactions(functionName, args) {
+    var web3 = new Web3();
+    web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
+
+    var txOptions = {};
+    txOptions.to = this.add0x(ethDB.address);
+    var nonce =  web3.eth.getTransactionCount(this.add0x(this.state.addresses[0]));
+    txOptions.nonce = nonce;
+    var registerTx = lightwallet.txutils.functionTx(ethDB.abi, functionName, args, txOptions);
+    console.log(registerTx);
+    var signedRegisterTx = lightwallet.signing.signTx(this.state.global_keystore, this.add0x(this.state.pwDerivedKey), this.add0x(registerTx), this.add0x(this.state.addresses[0]));
+    console.log(signedRegisterTx);
+
+    // var web3Provider = new HookedWeb3Provider({
+    //   host: "http://localhost:8545",
+    //   transaction_signer: this.state.global_keystore
+    // });
+    // console.log(web3Provider);
+    return web3.eth.sendRawTransaction(this.add0x(signedRegisterTx));
   }
 
 
