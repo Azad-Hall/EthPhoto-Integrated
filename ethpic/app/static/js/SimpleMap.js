@@ -35,7 +35,7 @@ const SimpleMap = props => (
           {...props.containerElementProps}
           style={{
             position: 'absolute',
-            top: '60px',
+            top: '0px',
             bottom: 0,
             left: 0,
             right: 0
@@ -50,7 +50,7 @@ const SimpleMap = props => (
           onClick={props.onMapClick}
           onShowImage={props.onShowImage}
           popup={props.popup}
-          defaultOptions={{ styles: mapStyle }}
+          defaultOptions={{ styles: mapStyle, minZoom:2 }}
         >
 
           {props.markers.map((marker, index) => (

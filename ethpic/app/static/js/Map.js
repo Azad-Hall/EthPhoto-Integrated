@@ -117,7 +117,7 @@ export default class Map extends Component {
               console.log(markers);
             });
           });
-        }); 
+        });
 
       });
     });
@@ -267,10 +267,11 @@ export default class Map extends Component {
     e.stopPropagation();
 
     var that = this;
-    
+    var all_obj = [];
+
     let promises = this.state.markers.map(marker => {
-      if(marker === this.state.currentMarker) {
-        return ethDB.upvote(marker.userid, marker.imageid).then(function(success){
+      if(marker === that.state.currentMarker) {
+        return that.props.functionCall(that.props.addresses[0],'upvote',[marker.userid, marker.imageid],function(err, success){
           console.log(success);
           marker.upvotes = parseInt(marker.upvotes) ? parseInt(marker.upvotes) + 1 : 1;
           return marker;
@@ -284,6 +285,7 @@ export default class Map extends Component {
     Promise.all(promises)
       .then(results => {
         // Handle results
+        console.log("UPVOTE", results);
         that.setState({ markers: results});
         this.props.updateMarkers(this.state.markers);
         this.setState({markers: this.props.markerData});
@@ -304,7 +306,7 @@ export default class Map extends Component {
     // })
 
   }
- 
+
   render() {
     return (
       <div>
@@ -327,7 +329,7 @@ export default class Map extends Component {
 }
 
 var ImageView = React.createClass({
-  
+
   render(){
     return(
       <div>

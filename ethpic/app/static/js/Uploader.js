@@ -80,8 +80,15 @@ export default class Uploader extends Component {
 
   componentDidMount() {
     this.setState({markers: this.props.markerData});
+
+     $("#searchTextField").on('keydown', function (e) {
+       if (e.keyCode == 13) {
+           e.preventDefault();
+       }
+     });
+
     setInterval(function(){
-      if(window.place){
+      if(window.place && document.getElementById('lat') && document.getElementById('lng')){
         document.getElementById('lat').value = parseFloat(Math.round(window.place.geometry.location.lat() * 10000) / 10000).toFixed(4);
         document.getElementById('lng').value = parseFloat(Math.round(window.place.geometry.location.lng() * 10000) / 10000).toFixed(4);
         window.place = null;
@@ -124,13 +131,12 @@ export default class Uploader extends Component {
     var that = this;
     console.log(input_file);
 
-    EmbarkJS.Storage.setProvider('ipfs',{server: 'localhost', port: '5001'});
+    EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
-      
 
-      ethDB.postPhoto(input_file_hash, lng, lat, types[type], {gas: '0x100590'}, {gasPrice: '0x100590'}).then(function(result){
+      that.props.functionCall('0x'+that.props.addresses[0],'postPhoto',[ input_file_hash,lng,lat,types[type]],function(err, result){
         console.log("UPLOADED RESULT", result);
 
         var obj = {};
@@ -186,24 +192,24 @@ export default class Uploader extends Component {
       <AppContainer>
         <div style={{position: 'absolute', top:'35%', left: '50%', transform:'translate( -50% , -50% )', zIndex:'100'}} id='drop-box'>
           <Dropzone onDrop={this.onDrop}>
-                <div style={{padding: '20px'}}>Try dropping some files here, or click to select files to upload.</div>
-          </Dropzone>
+          <div style={{padding: '20px',color:'#D8D6D5'}}>Try dropping some files here, or click to select files to upload.</div>
+      </Dropzone>
         </div>
         <img src="" id='preview' style={{position: 'absolute', top:'30%', left: '50%', transform:'translate( -50% , -50% )', height: '50vh', display:'none', zIndex:101}}/>
         <form style={{position:'absolute', left: '50vw', top: '70vh', transform:'translate( -50% , -50% )', zIndex:'100', display:'block', width:'60vw'}} onSubmit={this.submitImage.bind(this)}>
-          
-          <label for="location" style={{color:'black',display:'inline-block', width:'15%' , fontSize:'1.1rem'}}>Search:</label>
-          <input id="searchTextField" type="text" onFocus={this.requestLocation} onBlur={this.getLocation} style={{width:'85%',display:'inline-block'}}/>
-          
+
+        <label style={{fontFamily:'Roboto', color:'#D8D6D5',display:'inline-block', width:'15%' , fontSize:'1.1rem'}}>Search:</label>
+        <input id="searchTextField" type="text" onFocus={this.requestLocation} onBlur={this.getLocation} style={{width:'85%',display:'inline-block',color:'white'}}/>
+
           <div style={{width:'30vw', display:'inline-block'}}>
-            <label for="lat" style={{color:'black',display:'inline-block' , fontSize:'1.1rem'}}>Latitude</label>     
+          <label style={{fontFamily:'Roboto', color:'#D8D6D5',display:'inline-block' , fontSize:'1.1rem'}}>Latitude</label>
             <div className="input-field">
               <input disabled type='number' className="input" id='lat' step=".0001" ref="lat" defaultValue={this.props.curLat ? this.props.curLat : 0} placeholder='Lat'></input>
             </div>
           </div>
-          
+
           <div style={{width:'30vw', display:'inline-block'}}>
-            <label for="lng" style={{color:'black',display:'inline-block' , fontSize:'1.1rem'}}>Longitude</label>
+          <label style={{fontFamily:'Roboto', color:'#D8D6D5',display:'inline-block' , fontSize:'1.1rem'}}>Longitude</label>
             <div className="input-field">
               <input disabled type='number' className="input" id='lng' step=".0001" ref="lng" defaultValue={this.props.curLng ? this.props.curLng : 0} placeholder='Lng'></input>
             </div>

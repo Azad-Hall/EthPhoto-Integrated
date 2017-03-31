@@ -18,7 +18,7 @@ var Login = React.createClass({
     });
     return false;
   },
-  
+
   handleRemount(e) {
     this.setState({
       isVisible: true
@@ -26,15 +26,15 @@ var Login = React.createClass({
     });
     e.preventDefault();
   },
-  
+
   cancelLogin(){
     this.props.cancelLogin();
   },
-  
+
   doLogin(user,pswd){
     this.props.doLogin(user,pswd);
   },
-  
+
   doSignUp(pswd){
     this.props.doSignUp(pswd);
   },
@@ -44,7 +44,7 @@ var Login = React.createClass({
     // const for React CSS transition declaration
     let component = this.props.requestLogin ? <Modal onSubmit={ this.handleSubmit } cancelLogin={this.cancelLogin} key='modal'/> : <div></div>;
 
-    return <div><ReactCSSTransitionGroup transitionName="animation" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+    return <div><ReactCSSTransitionGroup transitionName="" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={300}>
              { component }
            </ReactCSSTransitionGroup></div>
   }
@@ -78,9 +78,10 @@ var Modal = React.createClass({
   render() {
     return <div className="overlay" onClick={this.props.cancelLogin}>
               <div className='Modal' onClick={this.stopPropagation}>
+              {this.state.choose ? <span style={{color:'white', position:'absolute', right:'1vw', top:'1vh', cursor:'pointer'}} onClick={() => this.setState({signup : 0, choose:0, signin:0})}>&larr;</span> : <span></span>}
                 <Logo />
                 <form onSubmit={this.onSubmit}>
-                  { this.state.signin ? 
+                  { this.state.signin ?
                     <div className='Input'>
                       <input type='text' name='username' ref='username' placeholder='Words' required autocomplete='false' onChange={this.usernameUpdate}/>
                     </div> : <div></div>
@@ -94,7 +95,7 @@ var Modal = React.createClass({
                   <button onClick={this.inClick}> SIGN {this.state.signup ? 'UP' : 'IN'} </button>
 
                   {this.state.signup ?
-                    <span style={{color:'white',fontSize:'0.9rem', margin:'0 10%', display:'block', textAlign:'center'}}>Take note of the words that will be generated when you submit 
+                    <span style={{color:'white',fontSize:'0.8rem', margin:'0 10%', display:'block', textAlign:'center'}}>Take note of the words that will be generated when you submit
                     your password. You will need them to be able to sign in to your account in the future.</span>
                     :<span></span>
                   }

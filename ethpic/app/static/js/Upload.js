@@ -10,17 +10,17 @@ var Upload = React.createClass({
   render(){
     return(
       <div>
-        {this.props.loggedIn ? <UploadButton showUploader={this.props.showUpload} 
-                                              toggleShowUpload={this.props.toggleShowUpload} 
-                                              user={this.props.user} 
-                                              curLat={this.props.curLat} 
+        {this.props.loggedIn ? <UploadButton showUploader={this.props.showUpload}
+                                              toggleShowUpload={this.props.toggleShowUpload}
+                                              user={this.props.user}
+                                              curLat={this.props.curLat}
                                               curLng={this.props.curLng}
-                                              markerData={this.props.markerData} 
+                                              markerData={this.props.markerData}
                                               updateMarkers={this.props.updateMarkers}
                                               setCurLatLng={this.props.setCurLatLng}
                                               showUserPics={this.props.showUserPics}
                                               addresses={this.props.addresses}
-                                              signTransactions={this.props.signTransactions}
+                                              functionCall={this.props.functionCall}
                                                /> : <div></div>}
       </div>
     )

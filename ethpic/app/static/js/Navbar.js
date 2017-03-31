@@ -5,7 +5,7 @@ import User from './User';
 var Navbar = React.createClass({
   render(){
     return(
-      <nav className="teal">
+      <nav className="teal" id="navbar">
           <div className="nav-wrapper">
               <a href="#" className="brand-logo center"><div className="logo" style={{ float:'left', zoom:0.25, margin:'10px 50px'}}>
                         <div className="camera">
