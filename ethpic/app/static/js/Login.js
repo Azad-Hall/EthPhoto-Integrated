@@ -42,7 +42,7 @@ var Login = React.createClass({
   render() {
 
     // const for React CSS transition declaration
-    let component = this.props.requestLogin ? <Modal onSubmit={ this.handleSubmit } cancelLogin={this.cancelLogin} key='modal'/> : <div></div>;
+    let component = this.props.requestLogin ? <Modal ipfs={this.props.ipfs} ethereum={this.props.ethereum} setIPs={this.props.setIPs} onSubmit={ this.handleSubmit } cancelLogin={this.cancelLogin} key='modal'/> : <div></div>;
 
     return <div><ReactCSSTransitionGroup transitionName="" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionLeaveTimeout={300}>
              { component }
@@ -58,27 +58,39 @@ var Modal = React.createClass({
       password:'',
       choose:0,
       signup:0,
-      signin:0
+      signin:0,
+      chooseip:0
     }
   },
 
   inClick(e){
     if(this.state.choose == 0){
       e.preventDefault();
-      this.setState({choose : 1, signin: 1})
+      this.setState({choose : 1, signin: 1, chooseip: 0})
     }
   },
   upClick(e){
     if(this.state.choose == 0){
       e.preventDefault();
-      this.setState({signup : 1, choose:1})
+      this.setState({signup : 1, choose:1, chooseip: 0})
+    }
+  },
+  changeIp(e){
+    if(this.state.choose == 0){
+      e.preventDefault();
+      this.setState({signup : 0, choose:1, chooseip: 1, signin: 0})
+    } else {
+      e.preventDefault();
+      var ipfsIP = this.refs.ipfs.value.trim();
+      var ethIP = this.refs.eth.value.trim();
+      this.props.setIPs(ipfsIP, ethIP);
     }
   },
 
   render() {
     return <div className="overlay" onClick={this.props.cancelLogin}>
               <div className='Modal' onClick={this.stopPropagation}>
-              {this.state.choose ? <span style={{color:'white', position:'absolute', right:'1vw', top:'1vh', cursor:'pointer'}} onClick={() => this.setState({signup : 0, choose:0, signin:0})}>&larr;</span> : <span></span>}
+              {this.state.choose ? <span style={{color:'white', position:'absolute', right:'1vw', top:'1vh', cursor:'pointer'}} onClick={() => this.setState({signup : 0, choose:0, signin:0, chooseip:0})}>&larr;</span> : <span></span>}
                 <Logo />
                 <form onSubmit={this.onSubmit}>
                   { this.state.signin ?
@@ -86,13 +98,23 @@ var Modal = React.createClass({
                       <input type='text' name='username' ref='username' placeholder='Words' required autocomplete='false' onChange={this.usernameUpdate}/>
                     </div> : <div></div>
                   }
-                  {this.state.choose ?
+                  {this.state.choose && !this.state.chooseip ?
                     <div className='Input'>
                      <input type='password' name='password' ref='password' placeholder='Password' required autocomplete='false' onChange={this.passwordUpdate}/>
                     </div>:<div></div>
                   }
+                  {this.state.chooseip ?
+                    <div>
+                    <div className='Input'>
+                     <input type='text' name='ipfs' ref='ipfs' placeholder='Enter IPFS address'  defaultValue={this.props.ipfs} required autocomplete='false'/>
+                    </div>
+                    <div className='Input'>
+                     <input type='text' name='eth' ref='eth' placeholder='Enter Ethereum address' defaultValue={this.props.ethereum} required autocomplete='false'/>
+                    </div></div>:<div></div>
+                  }
                   {this.state.choose == 0 ? <button onClick={this.upClick}> SIGN UP </button> : <div></div>}
-                  <button onClick={this.inClick}> SIGN {this.state.signup ? 'UP' : 'IN'} </button>
+                  {!this.state.chooseip ? <button onClick={this.inClick}> SIGN {this.state.signup ? 'UP' : 'IN'} </button> : <div></div>}
+                  {this.state.choose == 0 || this.state.chooseip ? <button onClick={this.changeIp}> CHANGE IP </button> : <div></div>}
 
                   {this.state.signup ?
                     <span style={{color:'white',fontSize:'0.9rem', margin:'0 10%', display:'block', textAlign:'center'}}>Take note of the words that will be generated when you submit your password. You will need them to be able to sign in to your account in the future.</span>

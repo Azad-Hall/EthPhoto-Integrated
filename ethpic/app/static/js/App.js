@@ -14,7 +14,7 @@ import sign from 'ethjs-signer';
 import Alert from './Alert';
 import Loader from './Loader';
 
-const server_side = "http://139.59.72.137:8080/ipfs/";
+// const server_side = "http://139.59.72.137:8080/ipfs/";
 
 var App = React.createClass ({
   getInitialState(){
@@ -37,20 +37,22 @@ var App = React.createClass ({
       ether: [],
       pwDerivedKey: '',
       pic: 0,
-      coin: 0
+      coin: 0,
+      ipfs: 'http://139.59.72.137:8080',
+      ethereum: 'http://139.59.72.137:8545'
     }
   },
 
   render() {
     return (
       <div className="App">
-        <Navbar showUserPics={this.showUserPics} loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
-        <Login requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin} doSignUp={this.doSignUp}/>
-        <Map functionCall={this.functionCall} createVault={this.createVault} signTransactions={this.signTransactions} ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} addresses={this.state.addresses} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
-        <Gallery functionCall={this.functionCall} ether={this.state.ether} coin={this.state.coin} pic={this.state.pic} showUserPics={this.showUserPics} updateValues={this.updateValues}  data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
-        <Upload functionCall={this.functionCall} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateValues={this.updateValues} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
-        <Alert showAlert={this.state.showAlert} info={this.state.seed} done={this.done} />
-        <Loader showLoader={this.state.showLoader} />
+        <Navbar ipfs={this.state.ipfs} ethereum={this.state.ethereum} showUserPics={this.showUserPics} loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
+        <Login ipfs={this.state.ipfs} ethereum={this.state.ethereum} setIPs={this.setIPs} requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin} doSignUp={this.doSignUp}/>
+        <Map ipfs={this.state.ipfs} ethereum={this.state.ethereum} functionCall={this.functionCall} createVault={this.createVault} signTransactions={this.signTransactions} ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} addresses={this.state.addresses} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
+        <Gallery ipfs={this.state.ipfs} ethereum={this.state.ethereum} functionCall={this.functionCall} ether={this.state.ether} coin={this.state.coin} pic={this.state.pic} showUserPics={this.showUserPics} updateValues={this.updateValues}  data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
+        <Upload ipfs={this.state.ipfs} ethereum={this.state.ethereum} functionCall={this.functionCall} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateValues={this.updateValues} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
+        <Alert ipfs={this.state.ipfs} ethereum={this.state.ethereum} showAlert={this.state.showAlert} info={this.state.seed} done={this.done} />
+        <Loader ipfs={this.state.ipfs} ethereum={this.state.ethereum} showLoader={this.state.showLoader} />
       </div>
     );
   },
@@ -59,6 +61,11 @@ var App = React.createClass ({
     this.setState({
       showAlert: false
     })
+  },
+
+  setIPs(ipfs1, ethereum1) {
+    this.setState({ipfs: ipfs1, ethereum:ethereum1});
+    alert("Changed IP Addresses! \nIPFS: " + ipfs1 + "\nEthereum: " + ethereum1);
   },
 
   updateMarkers(marker){
@@ -127,7 +134,7 @@ var App = React.createClass ({
         // });
 
         var provider = new HookedWeb3Provider({
-          host: 'http://139.59.72.137:8545',
+          host: that.state.ethereum,
           transaction_signer: ks
         });
 
@@ -172,7 +179,7 @@ var App = React.createClass ({
 
     var web3 = new Web3();
     var web3Provider = new HookedWeb3Provider({
-      host: "http://139.59.72.137:8545",
+      host: this.state.ethereum,
       transaction_signer: ks
     });
 
@@ -225,7 +232,7 @@ var App = React.createClass ({
               {
                 id: curr,
                 name: "",
-                image: server_side + values[1]
+                image: that.state.ipfs + '/ipfs/' + values[1]
               }
             ],
           });
@@ -315,7 +322,7 @@ var App = React.createClass ({
 
     var web3 = new Web3();
     var web3Provider = new HookedWeb3Provider({
-      host: "http://139.59.72.137:8545",
+      host: that.state.ethereum,
       transaction_signer: ks
     });
 

@@ -62,7 +62,10 @@ var UploadButton = React.createClass({
                                                                                             showUserPics={this.props.showUserPics}
                                                                                             addresses={this.props.addresses}
                                                                                             functionCall={this.props.functionCall}
-                                                                                            updateValues={this.props.updateValues} /></div> : <div></div>}
+                                                                                            updateValues={this.props.updateValues}
+                                                                                            ipfs={this.props.ipfs}
+                                                                                            ethereum={this.props.ethereum}
+                                                                                            toggleShowUpload={this.props.toggleShowUpload} /></div> : <div></div>}
         </CSSTransitions>
       </div>
     )

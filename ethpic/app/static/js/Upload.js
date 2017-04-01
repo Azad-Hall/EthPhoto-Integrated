@@ -22,6 +22,8 @@ var Upload = React.createClass({
                                               addresses={this.props.addresses}
                                               functionCall={this.props.functionCall}
                                               updateValues={this.props.updateValues}
+                                              ipfs={this.props.ipfs}
+                                              ethereum={this.props.ethereum} 
                                                /> : <div></div>}
       </div>
     )

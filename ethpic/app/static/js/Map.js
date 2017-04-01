@@ -3,7 +3,7 @@ import {
   Component,
 } from "react";
 
-const server_side = "http://139.59.72.137:8080/ipfs/";
+// const server_side = "http://139.59.72.137:8080/ipfs/";
 
 import CSSTransitions from 'react-addons-css-transition-group';
 
@@ -45,11 +45,22 @@ export default class Map extends Component {
     console.log(this.state.markers);
     console.log(this.props.markerData);
 
-    var types = {1: "Landscape", 2: "People", 3: "Architecture"};
+    var types = {
+      1: "Art/Achitecture",
+      2: "People",
+      3: "Technology",
+      4: "Travel",
+      5: "Nature",
+      6: "Abstract",
+      7: "Object",
+      8: "Other"
+    };
+
 
     console.log("1", this.state);
     var that = this;
 
+    ethDB.web3.setProvider(new Web3.providers.HttpProvider(that.props.ethereum));
     var h = ethDB.getNumberOfUsers().then(function(users){
       console.log("USERS", users);
       console.log("2", that.state);
@@ -100,7 +111,7 @@ export default class Map extends Component {
                     },
                     defaultAnimation: 2,
                     showInfo: false,
-                    imageUrl: server_side + data[1],
+                    imageUrl: that.props.ipfs + '/ipfs/' + data[1],
                     content: true,
                     title:'',
                     userid: curr,
@@ -135,6 +146,95 @@ export default class Map extends Component {
       }
     })
     this.setState({tempState});
+    if (!this.state.markers.length) {
+
+      var types = {
+        1: "Art/Achitecture",
+        2: "People",
+        3: "Technology",
+        4: "Travel",
+        5: "Nature",
+        6: "Abstract",
+        7: "Object",
+        8: "Other"
+      };
+
+      console.log("1", this.state);
+      var that = this;
+
+      ethDB.web3.setProvider(new Web3.providers.HttpProvider(that.props.ethereum));
+      var h = ethDB.getNumberOfUsers().then(function(users){
+        console.log("USERS", users);
+        console.log("2", that.state);
+
+        var arr = [...Array(users.c[0]).keys()];
+        console.log(arr);
+
+
+        arr.forEach(function(listitem, curr){
+
+          curr = curr + 1;
+
+          ethDB.getNumberOfPhotosByUID(curr).then(function(photos){
+            console.log("PHOTOS", photos);
+            console.log("3", that.state);
+
+            var new_arr = [...Array(photos.c[0]).keys()];
+            console.log(new_arr);
+
+            new_arr.forEach(function(new_listitem, j) {
+
+
+              console.log(curr, j);
+              ethDB.getPhotoByUID(curr, j).then(function(data){
+
+                console.log(data);
+                console.log(data[2], data[3]);
+                var obj = {};
+                obj.lng = () => {return parseInt(data[2])};
+                obj.lat = () => {return parseInt(data[3])};
+
+                console.log(obj);
+                console.log("Till here 1");
+                that.props.setCurLatLng(obj);
+                that.setState({
+                  markers: that.state.markers.map(marker => {
+                    marker.showInfo = false
+                    return marker;
+                  }),
+                });
+                let { markers } = that.state;
+                markers = update(markers, {
+                  $push: [
+                    {
+                      position: {
+                        lng: parseInt(data[2])/10000,
+                        lat: parseInt(data[3])/10000
+                      },
+                      defaultAnimation: 2,
+                      showInfo: false,
+                      imageUrl: that.props.ipfs + '/ipfs/' + data[1],
+                      content: true,
+                      title:'',
+                      userid: curr,
+                      imageid: j,
+                      tags:[types[parseInt(data[4])]],
+                      key: data[0], // Add a key property for: http://fb.me/react-warning-keys
+                      upvotes: [parseInt(data[5])],
+                    },
+                  ],
+                });
+                that.setState({ markers });
+                that.props.updateMarkers(that.state.markers);
+                that.setState({markers: that.props.markerData});
+                console.log(markers);
+              });
+            });
+          });
+
+        });
+      });
+    }
   }
 
   /*
@@ -274,6 +374,7 @@ export default class Map extends Component {
         return that.props.functionCall(that.props.addresses[0],'upvote',[marker.userid, marker.imageid],function(err, success){
           console.log(success);
           marker.upvotes = parseInt(marker.upvotes) ? parseInt(marker.upvotes) + 1 : 1;
+          that.closeImageView();
           return marker;
         });
       }
