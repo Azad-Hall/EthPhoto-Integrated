@@ -35,11 +35,12 @@ var UploadButton = React.createClass({
   },
 
   componentWillReceiveProps(){
-    this.state.rotate= !this.props.showUploader ? '45deg' : 0;
-    if(this.state.first){
-      this.state.rotate = 0;
-      this.state.first = false;
-    }
+    // this.setState({ rotate: this.props.showUploader ? '45deg' : 0});
+    // this.state.rotate = this.props.showUploader ? '45deg' : 0;
+    // if(this.state.first){
+    //   this.state.rotate = 0;
+    //   this.state.first = false;
+    // }
   },
 
   render(){
@@ -60,7 +61,8 @@ var UploadButton = React.createClass({
                                                                                             setCurLatLng={this.props.setCurLatLng}
                                                                                             showUserPics={this.props.showUserPics}
                                                                                             addresses={this.props.addresses}
-                                                                                            functionCall={this.props.functionCall} /></div> : <div></div>}
+                                                                                            functionCall={this.props.functionCall}
+                                                                                            updateValues={this.props.updateValues} /></div> : <div></div>}
         </CSSTransitions>
       </div>
     )

@@ -131,7 +131,7 @@ export default class Uploader extends Component {
     var that = this;
     console.log(input_file);
 
-    EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
+    // EmbarkJS.Storage.setProvider('ipfs',{server: '139.59.72.137', port: '5001'});
     EmbarkJS.Storage.uploadFile(input_file).then(function(input_file_hash) {
       console.log("topic_value", types[type]);
       console.log("input_file_hash", input_file_hash);
@@ -176,6 +176,7 @@ export default class Uploader extends Component {
         that.setState({markers: that.props.markerData});
         console.log(markers);
         that.props.showUserPics();
+        that.props.updateValues();
       });
     });
 
@@ -195,7 +196,7 @@ export default class Uploader extends Component {
           <div style={{padding: '20px',color:'#D8D6D5'}}>Try dropping some files here, or click to select files to upload.</div>
       </Dropzone>
         </div>
-        <img src="" id='preview' style={{position: 'absolute', top:'30%', left: '50%', transform:'translate( -50% , -50% )', height: '50vh', display:'none', zIndex:101}}/>
+        <img src="" id='preview' style={{position: 'absolute', top:'30%', left: '50%', transform:'translate( -50% , -50% )', height: '50vh', display:'none', zIndex:'101'}}/>
         <form style={{position:'absolute', left: '50vw', top: '70vh', transform:'translate( -50% , -50% )', zIndex:'100', display:'block', width:'60vw'}} onSubmit={this.submitImage.bind(this)}>
 
         <label style={{fontFamily:'Roboto', color:'#D8D6D5',display:'inline-block', width:'15%' , fontSize:'1.1rem'}}>Search:</label>

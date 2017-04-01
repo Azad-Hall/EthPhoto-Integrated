@@ -21,6 +21,7 @@ var Upload = React.createClass({
                                               showUserPics={this.props.showUserPics}
                                               addresses={this.props.addresses}
                                               functionCall={this.props.functionCall}
+                                              updateValues={this.props.updateValues}
                                                /> : <div></div>}
       </div>
     )
