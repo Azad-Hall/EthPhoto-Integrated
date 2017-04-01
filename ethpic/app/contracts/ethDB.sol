@@ -106,9 +106,11 @@ contract ethDB{
 	}
 	// upvote (photoId)th photo of (userId)th user
 	function upvote(uint userId,uint photoId){
+		if(userCoins[msg.sender]>=10){
 	    _users[registeredAddresses[userId]][photoId].numberOfUpvotes++;
 	    userCoins[registeredAddresses[userId]]+=10;
 	    userCoins[msg.sender]-=10;
+		}
 	}
 	// returns the balance of `msg.sender`
     function getNumberOfCoins() constant returns (uint coins) {
