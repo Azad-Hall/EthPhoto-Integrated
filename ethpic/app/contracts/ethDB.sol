@@ -20,11 +20,12 @@ contract ethDB{
     mapping(uint=> address) registeredAddresses;
     uint _numberOfUsers;
 
+    // constructor
     function ethDB(){
         _numberOfUsers=0;
         coinVault=1000000;
     }
-    //uplod a new photo
+    // upload a new photo
 	function postPhoto(string photoString,int photoLon,int photoLat,uint photoTopic) returns (int result) {
 	    if(!isRegisteredAddress[msg.sender]){
 	        ++_numberOfUsers;
@@ -47,8 +48,8 @@ contract ethDB{
 			userCoins[msg.sender]+=10;
 			result = 0; // success
 		}
-	}
-	//delete a photo of the user who's sending calls
+	} 
+	// delete a photo of the user who's sending calls
 	function deletePhoto(uint photoId) returns (uint successs) {
 	    if(photoId>= _numberOfPhotos[msg.sender])
 	        return 0;
@@ -71,11 +72,11 @@ contract ethDB{
 	    }
 
 	}
-	//get number of photos of the user who's sending calls
+	// get number of photos of the user who's sending calls
 	function getNumberOfPhotos() constant returns (uint numberOfPhotos) {
 		return _numberOfPhotos[msg.sender];
 	}
-	//retrieve photo data of the user who's sending calls
+	// retrieve photo data of the user who's sending calls
 	function getPhoto(uint photoId) constant returns ( uint timestamp, string photoString, int photoLon,int photoLat,uint photoTopic,uint upvotes) {
 		// returns two values
 		photoString =_users[msg.sender][photoId].photoString;
@@ -85,15 +86,15 @@ contract ethDB{
 		photoTopic =_users[msg.sender][photoId].photoTopic;
 		upvotes=_users[msg.sender][photoId].numberOfUpvotes;
 	}
-	//get total number of users
+	// get total number of users
 	function getNumberOfUsers() constant returns (uint numberOfUsers) {
 	    return _numberOfUsers;
 	}
-	//get number of photos of the (userId)th user
+	// get number of photos of the (userId)th user
 	function getNumberOfPhotosByUID(uint userId) constant returns (uint numberOfPhotos){
 	    return _numberOfPhotos[registeredAddresses[userId]];
 	}
-	//get (photoId)th photo of (userId)th user
+	// get (photoId)th photo of (userId)th user
 	function getPhotoByUID(uint userId,uint photoId) constant returns ( uint timestamp, string photoString, int photoLon,int photoLat,uint photoTopic,uint upvotes) {
 	    timestamp = _users[registeredAddresses[userId]][photoId].timestamp;
 	    photoString = _users[registeredAddresses[userId]][photoId].photoString;
@@ -103,13 +104,13 @@ contract ethDB{
 	    upvotes=_users[registeredAddresses[userId]][photoId].numberOfUpvotes;
 	    return (timestamp, photoString, photoLon, photoLat, photoTopic, upvotes);
 	}
-	//upvote (photoId)th photo of (userId)th user
+	// upvote (photoId)th photo of (userId)th user
 	function upvote(uint userId,uint photoId){
 	    _users[registeredAddresses[userId]][photoId].numberOfUpvotes++;
 	    userCoins[registeredAddresses[userId]]+=10;
 	    userCoins[msg.sender]-=10;
 	}
-
+	// returns the balance of `msg.sender`
     function getNumberOfCoins() constant returns (uint coins) {
 		return userCoins[msg.sender];
 	}
