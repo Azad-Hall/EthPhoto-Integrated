@@ -7,7 +7,7 @@
     "mineWhenNeeded": true,
     "nodiscover": true,
     "maxpeers": 0,
-    "rpcHost": "139.59.72.137",
+    "rpcHost": "localhost",
     "rpcPort": 8545,
     "rpcCorsDomain": "*",
     "account": {
@@ -39,7 +39,7 @@
   "privatenet": {
     "enabled": true,
     "networkType": "custom",
-    "rpcHost": "139.59.72.137",
+    "rpcHost": "localhost",
     "rpcPort": 8545,
     "datadir": "yourdatadir",
     "networkId": "123",

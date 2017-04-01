@@ -12,7 +12,7 @@ import $ from "./jquery";
 import update from "react-addons-update";
 import Dropzone from 'react-dropzone';
 
-const server_side = "http://139.59.72.137:8080/ipfs/";
+// const server_side = "http://139.59.72.137:8080/ipfs/";
 
 const percentagePrint = v => (v * 100).toFixed(0) + "%";
 const radiantPrint = r => (180 * r / Math.PI).toFixed(0) + "°";
@@ -127,6 +127,17 @@ export default class Uploader extends Component {
     this.refs.lng.value = "";
 
     var types = {"Landscape": 1, "People": 2, "Architecture": 3};
+    var types = {
+      "Art/Achitecture": 1,
+      "People": 2,
+      "Technology": 3,
+      "Travel": 4,
+      "Nature": 5,
+      "Abstract": 6,
+      "Object": 7,
+      "Other:":8
+    };
+
     console.log(types[type]);
     var that = this;
     console.log(input_file);
@@ -160,7 +171,7 @@ export default class Uploader extends Component {
               },
               defaultAnimation: 2,
               showInfo: false,
-              imageUrl: server_side + input_file_hash,
+              imageUrl: that.props.ipfs + '/ipfs/' + input_file_hash,
               content: true,
               title:'',
               userid: 0,
@@ -177,6 +188,7 @@ export default class Uploader extends Component {
         console.log(markers);
         that.props.showUserPics();
         that.props.updateValues();
+        that.props.toggleShowUpload();
       });
     });
 
@@ -219,9 +231,15 @@ export default class Uploader extends Component {
           <div className="input-field" style={{width:'25vw', left:'25%', transform:'translate( -50% , 0 )'}}>
             <select ref="imgType" style={{display:'block'}}>
               <option value="" disabled selected>Choose your option</option>
-              <option value="Landscape">Landscape</option>
+
+              <option value="Art/Achitecture">Art/Achitecture</option>
               <option value="People">People</option>
-              <option value="Architecture">Architecture</option>
+              <option value="Technology">Technology</option>
+              <option value="Travel">Travel</option>
+              <option value="Nature">Nature</option>
+              <option value="Abstract">Abstract</option>
+              <option value="Object">Object</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <button type="submit" style={{width:'25vw', display:'inline-block', right:0, transform:'translate(-80% , 0)'}}>Upload</button>
