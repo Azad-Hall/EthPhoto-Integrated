@@ -19,29 +19,13 @@ var Gallery = React.createClass  ({
 
 
 
-  updateValues() {
-  	var that = this;
-
-  	// var args = [];
-  	// args.push({from: this.props.addresses[0], to: ethDB.address});
-
-    this.props.functionCall(this.props.addresses[0],'getNumberOfPhotos',[],function(err, photos){
-  		console.log("PIC", photos);
-    	that.state.pic = photos.c[0];
-    });
-    this.props.functionCall(this.props.addresses[0],'getNumberOfCoins',[],function(err, coins){
-    	console.log("COIN", coins);
-    	that.state.coin = coins.c[0];
-    });
-    // this.props.getBalances();
-  },
 
   componentDidMount() {
   	console.log("STATE:", this.state.data);
   	this.setState({ data: this.props.data });
   	// this.updateValues();
   	if (this.props.open) {
-      this.updateValues();
+      this.props.updateValues();
   		this.props.showUserPics();
   	}
   },
@@ -50,20 +34,22 @@ var Gallery = React.createClass  ({
     this.setState({ data: this.props.data });
 
     if (this.props.open) {
-      this.updateValues();
+      // this.updateValues();
       // this.state.open = this.props.open;
       // this.updateValues();
   		// this.props.showUserPics();
   	}
   },
 
-  onDelete(e) {
-  	e.preventDefault();
+  onDelete(id) {
+  	// e.preventDefault();
   	var that = this;
-    console.log('id',that.props.data.id);
-    this.props.functionCall('0x'+that.props.addresses[0],'deletePhoto',[parseInt(that.props.data.id)],function(err, success){
+    console.log('id',id);
+    this.props.functionCall('0x'+that.props.addresses[0],'deletePhoto',[parseInt(id)],function(err, success){
   		console.log(success);
   		that.props.showUserPics();
+      that.props.updateValues();
+      that.props.hideDash();
   	});
   },
 
@@ -81,7 +67,7 @@ var Gallery = React.createClass  ({
 	        <div style={{backgroundColor:'#131829', width:'100w', position:'absolute', overflowY:'scroll', top:'0', bottom:'0',left:'0',right:'0'}} onClick={this.props.hideDash} key='gallery'>
             <div style={{width:'70vw' , margin:'0 auto', background:'#131829'}}>
              <Tiles data={this.state.data} logout={this.props.logout} username={this.props.username}
-	  			   onDelete={this.onDelete} pic={this.state.pic} coin={this.state.coin} addresses={this.props.addresses} ether={this.props.ether}/>
+	  			   onDelete={this.onDelete} pic={this.props.pic} coin={this.props.coin} addresses={this.props.addresses} ether={this.props.ether}/>
            </div>
 	        </div>
 	        :<div></div>}
@@ -192,6 +178,11 @@ class Tile extends React.Component {
 		}
 	}
 
+  onDelete(id) {
+    console.log('id', id);
+    this.props.onDelete(id);
+  }
+
 	render() {
 		// Modify styles based on state values
 		let tileStyle = {};
@@ -227,7 +218,7 @@ class Tile extends React.Component {
 					alt={this.props.data.name}
 					style={tileStyle}
 				/>
-				<a href="#" onClick={this.props.onDelete} style={{position:'absolute', marginLeft:'-3vw' , marginTop:'1vw' , color:'white'}}><i className="material-icons">delete</i></a>
+				<a href="#" onClick={() => this.onDelete(this.props.data.id)} style={{position:'absolute', marginLeft:'-3vw' , marginTop:'1vw' , color:'white'}}><i className="material-icons">delete</i></a>
 			</div>
 		);
 	}

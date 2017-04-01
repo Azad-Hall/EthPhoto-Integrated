@@ -27,7 +27,7 @@ var Navbar = React.createClass({
                       <a href="#"><i className="large material-icons">search</i></a>
                   </li>
               </ul>
-              <User loggedIn={this.props.loggedIn} showLogin={this.props.showLogin} showDash={this.props.showDash} userName={this.props.userName}/>
+              <User showUserPics={this.props.showUserPics} loggedIn={this.props.loggedIn} showLogin={this.props.showLogin} showDash={this.props.showDash} userName={this.props.userName}/>
           </div>
       </nav>
     )

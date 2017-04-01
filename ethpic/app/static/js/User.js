@@ -26,6 +26,7 @@ var User = React.createClass({
     },
     showDash(){
       this.props.showDash();
+      // this.props.showUserPics();
     }
 })
 

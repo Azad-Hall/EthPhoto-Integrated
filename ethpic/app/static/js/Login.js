@@ -95,8 +95,7 @@ var Modal = React.createClass({
                   <button onClick={this.inClick}> SIGN {this.state.signup ? 'UP' : 'IN'} </button>
 
                   {this.state.signup ?
-                    <span style={{color:'white',fontSize:'0.8rem', margin:'0 10%', display:'block', textAlign:'center'}}>Take note of the words that will be generated when you submit
-                    your password. You will need them to be able to sign in to your account in the future.</span>
+                    <span style={{color:'white',fontSize:'0.9rem', margin:'0 10%', display:'block', textAlign:'center'}}>Take note of the words that will be generated when you submit your password. You will need them to be able to sign in to your account in the future.</span>
                     :<span></span>
                   }
                 </form>

@@ -11,7 +11,8 @@ import Web3 from 'web3';
 import HookedWeb3Provider from 'hooked-web3-provider';
 import SignerProvider from 'ethjs-provider-signer';
 import sign from 'ethjs-signer';
-
+import Alert from './Alert';
+import Loader from './Loader';
 
 const server_side = "http://139.59.72.137:8080/ipfs/";
 
@@ -22,50 +23,42 @@ var App = React.createClass ({
       requestLogin: false,
       dashOpen: false,
       uploaderOpen: false,
+      showLoader: false,
       userName: '',
       curLat : 22,
       curLng : 87,
+      seed: '',
+      showAlert: false,
       markers: [],
-      // {
-      //   position: {
-      //     lat: 22.314544,
-      //     lng: 87.309068,
-      //   },
-      //   key: `IIT KGP`,
-      //   content: false,
-      //   showInfo: false,
-      //   defaultAnimation: 2,
-      //   userid: 0,
-      //   imageid: 0,
-      //   imageUrl:'https://unsplash.it/800/800?image=234',
-      //   title:'',
-      //   tags:['tag1', 'tag2' , 'tag3' ],
-      //   upvotes:'2',
-      // }],
       data: [],
-      // {
-      //   id: 1,
-      //   name: "Island",
-      //   image: "https://images.unsplash.com/photo-1442530792250-81629236fe54?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=980&h=980&fit=crop&s=9631adb2d2f752e3a0734f393fef634b"
-      // }
       global_keystore: '',
       addresses: [],
       web3: '',
       ether: [],
-      pwDerivedKey: ''
+      pwDerivedKey: '',
+      pic: 0,
+      coin: 0
     }
   },
 
   render() {
     return (
       <div className="App">
-        <Navbar loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
+        <Navbar showUserPics={this.showUserPics} loggedIn={this.state.loggedIn} showLogin={this.showLogin}  showDash={this.showDash} userName={this.state.userName}/>
         <Login requestLogin={this.state.requestLogin} cancelLogin={this.cancelLogin} doLogin={this.doLogin} doSignUp={this.doSignUp}/>
         <Map functionCall={this.functionCall} createVault={this.createVault} signTransactions={this.signTransactions} ref="map" markerData={this.state.markers} setCurLatLng={this.setCurLatLng} addresses={this.state.addresses} toggleShowUpload={this.toggleShowUpload} updateMarkers={this.updateMarkers}/>
-        <Gallery functionCall={this.functionCall} ether={this.state.ether} showUserPics={this.showUserPics} data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
-        <Upload functionCall={this.functionCall} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
+        <Gallery functionCall={this.functionCall} ether={this.state.ether} coin={this.state.coin} pic={this.state.pic} showUserPics={this.showUserPics} updateValues={this.updateValues}  data={this.state.data} addresses={this.state.addresses} open={this.state.dashOpen} getBalances={this.getBalances} hideDash={this.hideDash} logout={this.logout} username={this.state.userName}/>
+        <Upload functionCall={this.functionCall} showUserPics={this.showUserPics} markerData={this.state.markers} addresses={this.state.addresses} updateValues={this.updateValues} updateMarkers={this.updateMarkers} setCurLatLng={this.setCurLatLng} toggleShowUpload={this.toggleShowUpload} showUpload={this.state.uploaderOpen} loggedIn={this.state.loggedIn} user={this.state.userName} curLat={this.state.curLat} curLng={this.state.curLng}/>
+        <Alert showAlert={this.state.showAlert} info={this.state.seed} done={this.done} />
+        <Loader showLoader={this.state.showLoader} />
       </div>
     );
+  },
+
+  done(){
+    this.setState({
+      showAlert: false
+    })
   },
 
   updateMarkers(marker){
@@ -148,6 +141,7 @@ var App = React.createClass ({
               addresses: addr
             });
         that.showUserPics();
+        that.updateValues();
         if(cb)
           cb();
 
@@ -162,6 +156,10 @@ var App = React.createClass ({
     console.log('Generate the words and store them as username... the password is : ', password);
     var randomSeed = lightwallet.keystore.generateRandomSeed();
     console.log(randomSeed);
+    this.setState({
+      seed: randomSeed,
+      showAlert: true
+    });
     this.createVault(password, randomSeed);
 
   },
@@ -281,13 +279,39 @@ var App = React.createClass ({
   //   // var rpt = web3.eth.getTransactionReceipt(this.add0x(tx));
   //   // console.log(tx, rpt);
   //   return tx;
+
+
   // }
 
-  functionCall(fromAddr,functionName,functionArgs,callback) {
+
+  updateValues() {
+    var that = this;
+
+    // var args = [];
+    // args.push({from: this.props.addresses[0], to: ethDB.address});
+
+    this.functionCall(this.state.addresses[0],'getNumberOfPhotos',[],function(err, photos){
+      console.log("PIC", photos);
+      that.setState({
+        pic: photos.c[0]
+      });
+    });
+    this.functionCall(this.state.addresses[0],'getNumberOfCoins',[],function(err, coins){
+      console.log("COIN", coins);
+      that.setState({
+        coin: coins.c[0]
+      });
+    });
+    // this.props.getBalances();
+  },
+
+  functionCall(fromAddr,functionName,functionArgs,cb) {
     var ks = this.state.global_keystore;
     console.log(ks);
     var addresses = ks.getAddresses();
     console.log(addresses);
+    this.setState({ showLoader:true });
+    var that = this;
 
     var web3 = new Web3();
     var web3Provider = new HookedWeb3Provider({
@@ -308,10 +332,25 @@ var App = React.createClass ({
     var gasPrice = 50000000000
     var gas = 2000000
     args.push({from: fromAddr, value: value, gasPrice: gasPrice, gas: gas})
-    // var callback = function(err, txhash) {
-    //   console.log('error: ' + err)
-    //   console.log('txhash: ' + txhash)
-    // }
+    var callback = function(err, txhash) {
+      console.log('error: ' + err)
+      console.log('txhash: ' + txhash, txhash.length)
+      if (typeof(txhash) === 'string' && txhash.slice(0,2) == '0x') {
+        var res = '';
+        while(true){
+          res = web3.eth.getTransaction(that.add0x(txhash));
+          console.log('tnx', res);
+          if (res.blockNumber != null)
+            break;
+        }
+        console.log('getTransaction', null, res);
+        that.setState({ showLoader:false });
+        cb(null, res);
+      } else {
+        that.setState({ showLoader:false });
+        cb(err, txhash);
+      }
+    }
     args.push(callback)
     console.log("args:",args)
     contract[functionName].apply(this, args)
