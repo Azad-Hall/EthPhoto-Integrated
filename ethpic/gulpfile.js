@@ -5,7 +5,7 @@ var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var exec = require('child_process').exec;
 var buffer = require('vinyl-buffer');
-var uglify = require('gulp-uglify');
+//var uglify = require('gulp-uglify');
 
 
 gulp.task('bundle', function() {
@@ -17,8 +17,8 @@ gulp.task('bundle', function() {
     .bundle()
     .on("error", function (err) { console.log("Error : " + err); this.emit('end'); })
     .pipe(source('bundle.js'))
-    // .pipe(buffer())
-    // .pipe(uglify())
+    .pipe(buffer())
+    .pipe(uglify())
     .pipe(gulp.dest('dist'));
 });
 

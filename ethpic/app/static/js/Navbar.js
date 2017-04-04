@@ -23,9 +23,6 @@ var Navbar = React.createClass({
                         </div>
                       </div>EthPhoto</a>
               <ul className="left">
-                  <li>
-                      <a href="#"><i className="large material-icons">search</i></a>
-                  </li>
               </ul>
               <User showUserPics={this.props.showUserPics} loggedIn={this.props.loggedIn} showLogin={this.props.showLogin} showDash={this.props.showDash} userName={this.props.userName}/>
           </div>

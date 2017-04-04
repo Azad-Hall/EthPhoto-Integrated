@@ -317,6 +317,18 @@
                 return place.name;
             });
         }
+        function initCarousel() {
+          console.log('carousel setup');
+          $('.carousel').carousel();
+        }
+        function prev() {
+          console.log('carousel prev');
+          $('.carousel').carousel('prev');
+        }
+        function next() {
+          console.log('carousel next');
+          $('.carousel').carousel('next');
+        }
         function call(){
             google.maps.event.addDomListener(window, 'load', initialize);
         }

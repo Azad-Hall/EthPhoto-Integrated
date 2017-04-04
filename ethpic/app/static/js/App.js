@@ -330,14 +330,14 @@ var App = React.createClass ({
     // var fromAddr = document.getElementById('functionCaller').value
     // var contractAddr = document.getElementById('contractAddr').value
     var abi = ethDB.abi
-    var contractAddr="0x3745abcc3c1d60c0076185a9934708e88396953d"
+    var contractAddr=this.add0x(ethDB.address);
     var contract = web3.eth.contract(abi).at(contractAddr)
     // var functionName = document.getElementById('functionName').value
     var args = functionArgs
     // var valueEth = document.getElementById('sendValueAmount').value
     var value = 0;//parseFloat(valueEth)*1.0e18
     var gasPrice = 50000000000
-    var gas = 2000000
+    var gas = 3141592
     args.push({from: fromAddr, value: value, gasPrice: gasPrice, gas: gas})
     var callback = function(err, txhash) {
       console.log('error: ' + err)
