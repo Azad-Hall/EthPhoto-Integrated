@@ -11,12 +11,14 @@ import update from "react-addons-update";
 
 import SimpleMap from "./SimpleMap";
 import Web3 from 'web3';
+import $ from './jquery';
 
 const imageArray = []
 
 const styles={
   transition: 'all 150ms ease-out'
 }
+
 
 export default class Map extends Component {
   state = {
@@ -28,8 +30,10 @@ export default class Map extends Component {
       tags:['tag1', 'tag2' , 'tag3' ],
       upvotes:''
     },
+    images: [],
     currentMarker: '',
     formValue: "",
+    counter: 0
   };
 
   // handleMapClick = this.handleMapClick.bind(this);
@@ -37,8 +41,11 @@ export default class Map extends Component {
   handleMarkerClose = this.handleMarkerClose.bind(this);
   // handleMarkerRightclick = this.handleMarkerRightclick.bind(this);
   closeImageView = this.closeImageView.bind(this);
-  upvote = this.upvote.bind(this);
-
+  upvoteImage = this.upvoteImage.bind(this);
+  incCnt = this.incCnt.bind(this);
+  decCnt = this.decCnt.bind(this);
+  filterTopics = this.filterTopics.bind(this);
+  
   componentDidMount() {
     console.log(this.state.markers);
     this.setState({markers: this.props.markerData});
@@ -146,7 +153,9 @@ export default class Map extends Component {
       }
     })
     this.setState({tempState});
-    if (!this.state.markers.length) {
+    if (!this.state.markers.length && !this.props.markerData.length) {
+
+      console.log("DOUBLE DOUBLE", this.state.markers.length , this.props.markerData.length);
 
       var types = {
         1: "Art/Achitecture",
@@ -224,10 +233,13 @@ export default class Map extends Component {
                     },
                   ],
                 });
-                that.setState({ markers });
-                that.props.updateMarkers(that.state.markers);
-                that.setState({markers: that.props.markerData});
-                console.log(markers);
+                // if (!that.state.markers.length && !that.props.markerData.length) {
+                  that.setState({ markers });
+                  that.props.updateMarkers(that.state.markers);
+                  that.setState({markers: that.props.markerData});
+                  console.log(markers);
+                // }
+
               });
             });
           });
@@ -237,39 +249,6 @@ export default class Map extends Component {
     }
   }
 
-  /*
-   * This is called when you click on the map.
-   * Go and try click now.
-   */
-  // handleMapClick(event) {
-  //   console.log(event.latLng);
-  //   this.props.setCurLatLng(event.latLng);
-  //   this.setState({
-  //     markers: this.state.markers.map(marker => {
-  //       marker.showInfo = false
-  //       return marker;
-  //     }),
-  //   })
-  //   let { markers } = this.state;
-  //   markers = update(markers, {
-  //     $push: [
-  //       {
-  //         position: event.latLng,
-  //         defaultAnimation: 2,
-  //         showInfo: false,
-  //         imageUrl: 'https://unsplash.it/800/800?image='+[Math.floor(Math.random() * 1000)],
-  //         content: true,
-  //         title:'Image Title',
-  //         tags:['tag1', 'tag2' , 'tag3' ],
-  //         key: Date.now(), // Add a key property for: http://fb.me/react-warning-keys
-  //       },
-  //     ],
-  //   });
-  //   this.setState({ markers });
-  //   this.props.updateMarkers(this.state.markers);
-  //   this.setState({markers: this.props.markerData});
-  //   console.log(markers);
-  // }
 
   updateMarkers(){
    console.log('11111');
@@ -283,14 +262,23 @@ export default class Map extends Component {
   handleMarkerClick(targetMarker){
     console.log(this.state.imageView.upvotes);
     let tempState = this.state;
+    tempState.images = [];
     this.state.markers.map(marker => {
-        if(marker === targetMarker){
-          console.log(marker.imageUrl);
+        console.log('-------compare-------');
+        console.log(marker.position);
+        console.log(targetMarker.position);
+        console.log('---------------');
+        if(marker.position.lat == targetMarker.position.lat && marker.position.lng == targetMarker.position.lng){
+          tempState.images.push(marker);
+          console.log('--------pushed-----');
+          console.log(tempState.images);
+          console.log('-------------');
           tempState.imageView.url = marker.imageUrl;
           tempState.imageView.title = marker.title;
           tempState.imageView.tags = marker.tags;
           tempState.imageView.visible = true;
           tempState.imageView.upvotes = marker.upvotes;
+          tempState.counter = 0;
           console.log(marker.upvotes);
           console.log(tempState.imageView.upvotes);
           this.setState({tempState});
@@ -362,8 +350,8 @@ export default class Map extends Component {
    });
  }
 
- upvote(e){
-    e.preventDefault();
+ upvoteImage(e){
+   e.preventDefault();
     e.stopPropagation();
 
     var that = this;
@@ -408,6 +396,113 @@ export default class Map extends Component {
 
   }
 
+  incCnt(){
+    console.log(this.state.counter);
+    var tempState = this.state;
+    if(tempState.counter == (this.state.images.length -1) ){
+      tempState.counter = 0;
+    }else{
+      tempState.counter++;
+    }
+
+
+    tempState.imageView.url = this.state.images[tempState.counter].imageUrl;
+    tempState.imageView.title = this.state.images[tempState.counter].title;
+    tempState.imageView.tags = this.state.images[tempState.counter].tags;
+    tempState.imageView.visible = true;
+    tempState.imageView.upvotes = this.state.images[tempState.counter].upvotes;
+
+
+    this.setState({tempState});
+  }
+
+  decCnt(){
+    var tempState = this.state;
+    if(tempState.counter == 0 ){
+      tempState.counter = this.state.images.length -1;
+    }else{
+      tempState.counter--;
+    }
+
+
+    tempState.imageView.url = this.state.images[tempState.counter].imageUrl;
+    tempState.imageView.title = this.state.images[tempState.counter].title;
+    tempState.imageView.tags = this.state.images[tempState.counter].tags;
+    tempState.imageView.visible = true;
+    tempState.imageView.upvotes = this.state.images[tempState.counter].upvotes;
+
+
+    this.setState({tempState});
+  }
+
+  filterTopics(){
+    var option = prompt("Please Choose Topic \n\t1.Art/Architecture\n\t2.People\n\t3.Technology\n\t4.Travel\n\t5.Nature\n\t6.Abstract\n\t7.Object\n\t8.Other", "Enter Choice Number");
+    switch(option){
+      case '1': {
+        option = 'Art/Architecture';
+        break;
+      }
+      case '2':{
+        option = 'People';
+        break;
+      }
+      case '3':{
+        option = 'Technology';
+        break;
+      }
+      case '4':{
+        option = 'Travel';
+        break;
+      }
+      case '5':{
+        option = 'Nature';
+        break;
+      }
+      case '6':{
+        option = 'Abstract';
+        break;
+      }
+      case '7':{
+        option = 'Object';
+        break;
+      }
+      case '8':{
+        option = 'Other';
+        break;
+      }
+      default:{
+        alert('Enter a valid input.');
+        return;
+      }
+    }
+    console.clear();
+    let tempState = this.state;
+    tempState.images = [];
+    this.state.markers.map(marker => {
+        console.log('-------compare-------');
+        console.log(marker.tags);
+        console.log(option);
+        console.log('---------------');
+        if(marker.tags == option){
+          tempState.images.push(marker);
+          console.log('--------pushed-----');
+          console.log(tempState.images);
+          console.log('-------------');
+          tempState.imageView.url = marker.imageUrl;
+          tempState.imageView.title = marker.title;
+          tempState.imageView.tags = marker.tags;
+          tempState.imageView.visible = true;
+          tempState.imageView.upvotes = marker.upvotes;
+          tempState.counter = 0;
+          console.log(marker.upvotes);
+          console.log(tempState.imageView.upvotes);
+          this.setState({tempState});
+        }
+    })
+    this.setState({markers: this.props.markerData, currentMarker: targetMarker});
+    this.props.updateMarkers(this.state.markers);
+  }
+
   render() {
     return (
       <div>
@@ -422,8 +517,9 @@ export default class Map extends Component {
         bounds = {this.state.bounds}
         onPlacesChanged={this.handlePlacesChanged}
       />
+      <div onClick={this.filterTopics}><a className="btn-floating btn-large waves-effect waves-light indigo" style={{position:'absolute', bottom: '2vh', left:'3vh', zIndex:'10'}}><i className="material-icons" style={{...styles, transform:'rotate('+this.state.rotate+')'}}>clear_all</i>}</a></div>
 
-      <ImageView data={this.state.imageView} closeImageView={this.closeImageView} upvoteImage={this.upvote}/>
+      <ImageView data={this.state.imageView} counter={this.state.counter} incCnt={this.incCnt} decCnt={this.decCnt} closeImageView={this.closeImageView} upvoteImage={this.upvoteImage} images={this.state.images}/>
       </div>
     );
   }
@@ -431,7 +527,23 @@ export default class Map extends Component {
 
 var ImageView = React.createClass({
 
-  render(){
+  next(e){
+    console.log('next call');
+    e.preventDefault();
+    e.stopPropagation();
+    // window.next();
+    this.props.incCnt();
+  },
+
+  prev(e){
+    console.log('prev call');
+    e.preventDefault();
+    e.stopPropagation();
+    // window.prev();
+    this.props.decCnt();
+  },
+
+render(){
     return(
       <div>
         <CSSTransitions
@@ -442,6 +554,10 @@ var ImageView = React.createClass({
           transitionAppearTimeout = {150}>
         {this.props.data.visible ?
           <div className="overlay" onClick={this.props.closeImageView} key={1}>
+          <button className="btn indigo" style={{position:'absolute', top:'50%' , zIndex:'200' , left:'75%', transform:'translate(-50%)'}} onClick={this.next}>&rsaquo;</button>
+          <button className="btn indigo" style={{position:'absolute', top:'50%' , zIndex:'200' , left:'25%', transform:'translate(-50%)'}} onClick={this.prev}> &lsaquo;</button>
+
+
             <div className="container center-position">
               <div className="row">
                 <div className="col m12 l6 offset-l3">

@@ -49,6 +49,7 @@ contract ethDB{
 			result = 0; // success
 		}
 	} 
+
 	// delete a photo of the user who's sending calls
 	function deletePhoto(uint photoId) returns (uint successs) {
 	    if(photoId>= _numberOfPhotos[msg.sender])
